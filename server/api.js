@@ -97,8 +97,8 @@ wss.on('connection', (ws) => {
     });
 });
 
-function triggerOverlaySound(sound, url, playbackSpeed = 1.0) {
-    const msg = JSON.stringify({ type: 'play_sound', sound, url, playbackSpeed });
+function triggerOverlaySound(sound, url, volume, playbackSpeed = 1.0) {
+    const msg = JSON.stringify({ type: 'play_sound', sound, url, volume, playbackSpeed });
     overlayClients.forEach(ws => {
         if (ws.readyState === ws.OPEN) ws.send(msg);
     });
@@ -106,10 +106,10 @@ function triggerOverlaySound(sound, url, playbackSpeed = 1.0) {
 
 // API endpoint to trigger sound on overlay
 app.post('/api/trigger-sound', (req, res) => {
-    const { sound, playbackSpeed } = req.body;
+    const { sound, playbackSpeed, volume } = req.body;
     if (!sound) return res.status(400).json({ error: 'Missing sound' });
     const url = `/sounds/${sound}`;
-    triggerOverlaySound(sound, url, playbackSpeed || 1);
+    triggerOverlaySound(sound, url, volume, playbackSpeed || 1);
     res.json({ success: true });
 });
 

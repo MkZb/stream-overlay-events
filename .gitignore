@@ -43,6 +43,7 @@ $RECYCLE.BIN/
 
 # Git
 .git/
+.github/
 
 # Other
 *.tgz

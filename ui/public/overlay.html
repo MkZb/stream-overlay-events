@@ -23,6 +23,7 @@
       if (data.type === 'play_sound') {
         player.src = data.url;
         player.playbackRate = data.playbackSpeed || 1;
+        player.volume = data.volume;
         player.play();
         status.textContent = `Playing: ${data.sound}`;
         setTimeout(() => { status.textContent = ''; }, 2000);

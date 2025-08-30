@@ -99,8 +99,7 @@ function handleChatMessageEvent(data) {
     // Find the first keyword that matches
     // Possibly change that to match all keywords, not sure yet
     for (const kw of cfg.keywords || []) {
-        const regex = new RegExp(`\\b${kw.word}\\b`);
-        if (regex.test(message)) {
+        if (message.includes(kw.word)) {
             matchedKeyword = kw.word;
             matchedKeywordObj = kw;
             break;
@@ -108,7 +107,6 @@ function handleChatMessageEvent(data) {
     }
 
     if (matchedKeyword) {
-        console.log("Match!");
         // If same as last, increment, else reset
         if (lastMatchedKeyword === matchedKeyword) {
             keywordStreaks[matchedKeyword] = (keywordStreaks[matchedKeyword] || 0) + 1;
