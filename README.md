@@ -16,13 +16,16 @@ This project is a Twitch-connected app/bot that listens to chat messages and tri
 - (optional) WEBSOCKET_PORT= - a websocket port
 
 2. Install required packages
-> npm install
->
-> cd ui
->
-> npm install
+```bash
+npm install
+cd ui
+npm install
+```
 
 3. Start an app
-> cd .. (to get back to the root of a project from previous step)
->
-> npm start
+```bash
+# Get back to the root of a project from previous step)
+cd .. 
+
+npm start
+```
