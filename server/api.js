@@ -25,7 +25,6 @@ app.get('/api/config', (req, res) => {
     res.json(getConfig());
 });
 
-
 // Add a new keyword (with file upload)
 app.post('/api/keywords', upload.single('sound'), (req, res) => {
     const { word, threshold, volume } = req.body;
@@ -34,10 +33,9 @@ app.post('/api/keywords', upload.single('sound'), (req, res) => {
     let soundFile = req.file ? req.file.filename : null;
     if (req.file) {
         // Move file to correct name
-        const ext = path.extname(req.file.originalname);
-        const newName = `${word}${ext}`;
-        fs.renameSync(req.file.path, path.join(soundsDir, newName));
-        soundFile = newName;
+        const name = path.basename(req.file.originalname);
+        fs.renameSync(req.file.path, path.join(soundsDir, name));
+        soundFile = name;
     }
     config.keywords.push({
         word,
@@ -59,10 +57,9 @@ app.put('/api/keywords/:index', upload.single('sound'), (req, res) => {
     if (threshold) config.keywords[idx].threshold = Number(threshold);
     if (volume) config.keywords[idx].volume = Number(volume);
     if (req.file) {
-        const ext = path.extname(req.file.originalname);
-        const newName = `${word || config.keywords[idx].word}${ext}`;
-        fs.renameSync(req.file.path, path.join(soundsDir, newName));
-        config.keywords[idx].sound = newName;
+        const name = path.basename(req.file.originalname);
+        fs.renameSync(req.file.path, path.join(soundsDir, name));
+        config.keywords[idx].sound = name;
     }
     updateConfig({ keywords: config.keywords });
     res.json({ success: true, keyword: config.keywords[idx] });

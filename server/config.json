@@ -1,20 +1,8 @@
 {
   "keywords": [
     {
-      "word": "Boink",
-      "sound": "Boink.mp3",
-      "volume": 1,
-      "threshold": 2
-    },
-    {
-      "word": "!test",
-      "sound": "!test.mp3",
-      "volume": 1,
-      "threshold": 3
-    },
-    {
-      "word": "Boink2",
-      "sound": "Boink2.mp3",
+      "word": "test",
+      "sound": "pluh.mp3",
       "volume": 1,
       "threshold": 2
     }
