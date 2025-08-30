@@ -1,7 +1,19 @@
 {
   "keywords": [
     {
-      "word": "test",
+      "word": "Boink",
+      "sound": "Boink.mp3",
+      "volume": 1,
+      "threshold": 2
+    },
+    {
+      "word": "meow",
+      "sound": "meow.mp3",
+      "volume": 1,
+      "threshold": 2
+    },
+    {
+      "word": "pluh",
       "sound": "pluh.mp3",
       "volume": 1,
       "threshold": 2
