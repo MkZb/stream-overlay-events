@@ -12,7 +12,8 @@ This project is a Twitch-connected app/bot that listens to chat messages and tri
 - TWITCH_BOT_USER_ID= - an id (not a login) of a monitoring (bot) account
 - TWITCH_CHANNEL_ID= - an id (not a login) of a channel chat to monitor
 
-- API_PORT= - an express app port (optional, default 3001)
+- (optional) API_PORT= - an express app port
+- (optional) WEBSOCKET_PORT= - a websocket port
 
 2. Install required packages
 > npm install
