@@ -17,9 +17,12 @@ This project is a Twitch-connected app/bot that listens to chat messages and tri
 
 2. Install required packages
 > npm install
+>
 > cd ui
+>
 > npm install
 
 3. Start an app
 > cd .. (to get back to the root of a project from previous step)
+>
 > npm start
