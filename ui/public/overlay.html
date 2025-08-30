@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Streak Overlay</title>
+  <style>
+    body { background: transparent; margin: 0; }
+    #sound-status { position: absolute; top: 10px; left: 10px; color: white; font-size: 2em; }
+  </style>
+</head>
+<body>
+  <div id="sound-status"></div>
+  <audio id="sound-player"></audio>
+  <script>
+    // Connect to backend via WebSocket for instant sound triggers
+    const ws = new WebSocket('ws://localhost:3002');
+    const player = document.getElementById('sound-player');
+    const status = document.getElementById('sound-status');
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'play_sound') {
+        player.src = data.url;
+        player.playbackRate = data.playbackSpeed || 0.2;
+        player.play();
+        status.textContent = `Playing: ${data.sound}`;
+        setTimeout(() => { status.textContent = ''; }, 2000);
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "sound_streak",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "This project is a Twitch-connected app/bot that listens to chat messages and triggers specific sounds when keywords are detected. It also provides a configuration UI for managing keywords, sound triggers, thresholds, and playback speed.",
+  "main": "index.js",
+  "scripts": {
+    "test": "concurrently 'npm:twitch_bot' 'npm:settings_api_server' 'npm:frontend'",
+    "twitch_bot": "node server/bot.js",
+    "settings_api_server": "node server/api.js",
+    "frontend": "cd ui && npm start",
+    "dev": "concurrently \"cd bot && node api.js\" \"cd ui && npm start\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "ws": "^8.18.3"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "keywords": [
+    {
+      "word": "Boink",
+      "sound": "Boink.mp3",
+      "volume": 1,
+      "threshold": 4
+    },
+    {
+      "word": "test",
+      "sound": "test.mp3",
+      "volume": 1,
+      "threshold": 7
+    }
+  ],
+  "globalThreshold": 7
+}
