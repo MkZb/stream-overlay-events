@@ -148,7 +148,7 @@ function ConfigApp() {
                 </Box>
                 <Box sx={{ mb: 2 }}>
                     <Typography gutterBottom>Global Threshold: {threshold}</Typography>
-                    <Slider min={1} max={10} value={threshold} onChange={handleThresholdChange} valueLabelDisplay="auto" />
+                    <Slider min={1} max={30} value={threshold} onChange={handleThresholdChange} valueLabelDisplay="auto" />
                 </Box>
             </Paper>
             <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>

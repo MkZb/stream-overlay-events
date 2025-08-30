@@ -1,12 +1,8 @@
 import WebSocket from 'ws'
 import 'dotenv/config'
-import fs from 'fs';
-import path from 'path';
-//dotenv.config({ path: 'bot/.env' })
 
-//const player = require('play-sound')();
-
-let config = await import('./config.js');
+import * as configModule from './config.js';
+let config = configModule;
 const API_URL = 'http://localhost:3001/api';
 
 const BOT_ID = process.env.TWITCH_BOT_USER_ID;
@@ -51,20 +47,9 @@ async function getAuth() {
     console.log("Validated token.");
 }
 
+// TODO:
 async function handleExpiredToken() {
-    let response = await fetch('https://id.twitch.tv/oauth2/token', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + TOKEN,
-            'Client-Id': CLIENT_ID,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            broadcaster_id: CHANNEL_ID,
-            sender_id: BOT_ID,
-            message: chatMessage
-        })
-    });
+
 }
 
 function startWebSocketClient() {
@@ -100,17 +85,57 @@ function handleWebSocketMessage(data) {
     }
 }
 
-function handleChatMessageEvent(data) {
-    console.log(`MSG #${data.broadcaster_user_login} <${data.chatter_user_login}> ${data.message.text}`);
-    console.log(config.getConfig());
 
-    if (data.message.text.trim() == "!test") {
-        //sendChatMessage("test");
-        fetch(`${API_URL}/trigger-sound`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sound: 'Boink.mp3' })
-        });
+// Track consecutive keyword streaks
+let keywordStreaks = {};
+let lastMatchedKeyword = null;
+
+function handleChatMessageEvent(data) {
+    const message = data.message.text.trim();
+    const cfg = config.getConfig();
+    let matchedKeyword = null;
+    let matchedKeywordObj = null;
+
+    // Find the first keyword that matches
+    // Possibly change that to match all keywords, not sure yet
+    for (const kw of cfg.keywords || []) {
+        const regex = new RegExp(`\\b${kw.word}\\b`);
+        if (regex.test(message)) {
+            matchedKeyword = kw.word;
+            matchedKeywordObj = kw;
+            break;
+        }
+    }
+
+    if (matchedKeyword) {
+        console.log("Match!");
+        // If same as last, increment, else reset
+        if (lastMatchedKeyword === matchedKeyword) {
+            keywordStreaks[matchedKeyword] = (keywordStreaks[matchedKeyword] || 0) + 1;
+        } else {
+            keywordStreaks[matchedKeyword] = 1;
+        }
+        lastMatchedKeyword = matchedKeyword;
+
+        // Use per-keyword threshold or global
+        const threshold = matchedKeywordObj.threshold || cfg.globalThreshold || 3;
+        if (keywordStreaks[matchedKeyword] >= threshold) {
+            // Play sound via API
+            fetch(`${API_URL}/trigger-sound`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sound: matchedKeywordObj.sound,
+                    playbackSpeed: Math.random() * (2 - 0.5) + 0.5,
+                    volume: matchedKeywordObj.volume
+                })
+            });
+            keywordStreaks[matchedKeyword] = 0; // reset streak
+        }
+    } else {
+        // No keyword matched, reset streaks
+        lastMatchedKeyword = null;
+        Object.keys(keywordStreaks).forEach(k => keywordStreaks[k] = 0);
     }
 }
 

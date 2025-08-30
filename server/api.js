@@ -109,7 +109,7 @@ app.post('/api/trigger-sound', (req, res) => {
     const { sound, playbackSpeed } = req.body;
     if (!sound) return res.status(400).json({ error: 'Missing sound' });
     const url = `/sounds/${sound}`;
-    triggerOverlaySound(sound, url, playbackSpeed || Math.random() * (2 - 0.5) + 0.5);
+    triggerOverlaySound(sound, url, playbackSpeed || 1);
     res.json({ success: true });
 });
 
