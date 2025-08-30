@@ -31,7 +31,6 @@ export async function getAuth(maxRetries = 2) {
     return currentToken;
 }
 
-// TODO:
 async function handleExpiredToken(maxRetries) {
     await getNewToken();
     return await getAuth(maxRetries);

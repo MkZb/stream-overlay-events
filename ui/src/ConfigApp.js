@@ -6,7 +6,6 @@ import EditIcon from '@mui/icons-material/Edit';
 
 const API_URL = 'http://localhost:3001/api';
 
-
 function ConfigApp() {
     const [keywords, setKeywords] = useState([]);
     const [newKeyword, setNewKeyword] = useState('');

@@ -8,6 +8,8 @@ import { WebSocketServer } from 'ws';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+const API_PORT = process.env.API_PORT || 3001;
+const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT || 3002;
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -85,7 +87,7 @@ app.post('/api/globalThreshold', (req, res) => {
 });
 
 // --- Overlay WebSocket and API trigger ---
-const wss = new WebSocketServer({ port: 3002 });
+const wss = new WebSocketServer({ port: WEBSOCKET_PORT });
 let overlayClients = [];
 wss.on('connection', (ws) => {
     overlayClients.push(ws);
@@ -110,8 +112,6 @@ app.post('/api/trigger-sound', (req, res) => {
     res.json({ success: true });
 });
 
-const PORT = process.env.API_PORT || 3001;
-
-app.listen(PORT, () => {
-    console.log(`Config API listening on port ${PORT}`);
+app.listen(API_PORT, () => {
+    console.log(`Config API listening on port ${API_PORT}`);
 });
