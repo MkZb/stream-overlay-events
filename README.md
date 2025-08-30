@@ -29,3 +29,8 @@ cd ..
 
 npm start
 ```
+
+3. Usage
+- Go to http://localhost:3000/ if it didn't open automatically
+- Alternativly you can edit config.json by hand following given template
+- Add a browser source http://localhost:3000/overlay.html to your OBS (the sounds might not play in browser because usually autoplay is disabled by default)
