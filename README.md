@@ -12,17 +12,18 @@ This project is a Twitch-connected app/bot that listens to chat messages and tri
 - TWITCH_BOT_USER_ID= - an id (not a login) of a monitoring (bot) account
 - TWITCH_CHANNEL_ID= - an id (not a login) of a channel chat to monitor
 
-- (optional) API_PORT= - an express app port
+- (optional) SERVER_PORT= - an express app port
 - (optional) WEBSOCKET_PORT= - a websocket port
 
-2. Install required packages
+2. Install required packages and build the ui
 ```bash
 npm install
 cd ui
 npm install
+npm build
 ```
 
-3. Start an app
+3. Starting an app
 ```bash
 # Get back to the root of a project from previous step)
 cd .. 
@@ -31,6 +32,6 @@ npm start
 ```
 
 3. Usage
-- Go to http://localhost:3000/ if it didn't open automatically
+- Go to http://localhost:3001/ (or other port you configured)
 - Alternativly you can edit config.json by hand following given template
-- Add a browser source http://localhost:3000/overlay.html to your OBS (the sounds might not play in browser because usually autoplay is disabled by default)
+- Add a browser source http://localhost:3001/overlay.html to your OBS (the sounds might not play in browser because usually autoplay is disabled by default)

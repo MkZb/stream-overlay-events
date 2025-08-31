@@ -19,7 +19,7 @@ let config = {
 if (fs.existsSync(CONFIG_FILE)) {
     const saved = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
     config = { ...config, ...saved };
-    console.log('CONFIG LOADED');
+    console.log('Config successfully loaded');
 }
 
 // Watch for changes to config.json

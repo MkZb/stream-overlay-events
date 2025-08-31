@@ -28,7 +28,6 @@ let token;
     const websocketClient = startWebSocketClient();
 })();
 
-
 function startWebSocketClient() {
     let websocketClient = new WebSocket(EVENTSUB_WEBSOCKET_URL);
 
@@ -51,6 +50,9 @@ function handleWebSocketMessage(data) {
             websocketSessionID = data.payload.session.id;
             registerEventSubListeners();
             break;
+        case 'session_reconnect':
+        case 'revocation':
+            console.log(`Unhandled websocket message type ${data.metadata.message_type} , connection most likely terminated`);
         case 'notification':
             switch (data.metadata.subscription_type) {
                 case 'channel.chat.message':
@@ -60,7 +62,6 @@ function handleWebSocketMessage(data) {
             break;
     }
 }
-
 
 // Track consecutive keyword streaks
 let keywordStreaks = {};

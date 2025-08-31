@@ -9,7 +9,7 @@
     {
       "word": "meow",
       "sound": "meow.mp3",
-      "volume": 1,
+      "volume": 0.71,
       "threshold": 2
     },
     {
@@ -17,7 +17,19 @@
       "sound": "pluh.mp3",
       "volume": 1,
       "threshold": 2
+    },
+    {
+      "word": "LieMeter",
+      "sound": "LieMeter.mp3",
+      "volume": 0.75,
+      "threshold": 2
+    },
+    {
+      "word": "TruthMeter",
+      "sound": "TruthMeter.mp3",
+      "volume": 0.74,
+      "threshold": 2
     }
   ],
-  "globalThreshold": 2
+  "globalThreshold": 5
 }

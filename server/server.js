@@ -8,16 +8,20 @@ import { WebSocketServer } from 'ws';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const API_PORT = process.env.API_PORT || 3001;
+const SERVER_PORT = process.env.SERVER_PORT || 3001;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT || 3002;
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const soundsDir = path.join(__dirname, '../ui/public/sounds');
-if (!fs.existsSync(soundsDir)) fs.mkdirSync(soundsDir, { recursive: true });
+app.use(express.static(path.join(__dirname, '../ui/build')));
 
+// --- Settings API ---
+const soundsDir = path.join(__dirname, '../ui/build/sounds');
+if (!fs.existsSync(soundsDir)) fs.mkdirSync(soundsDir, { recursive: true });
 const upload = multer({ dest: soundsDir });
 
 let config = getConfig();
@@ -103,7 +107,6 @@ function triggerOverlaySound(sound, url, volume, playbackSpeed = 1.0) {
     });
 }
 
-// API endpoint to trigger sound on overlay
 app.post('/api/trigger-sound', (req, res) => {
     const { sound, playbackSpeed, volume } = req.body;
     if (!sound) return res.status(400).json({ error: 'Missing sound' });
@@ -112,6 +115,6 @@ app.post('/api/trigger-sound', (req, res) => {
     res.json({ success: true });
 });
 
-app.listen(API_PORT, () => {
-    console.log(`Config API listening on port ${API_PORT}`);
+app.listen(SERVER_PORT, () => {
+    console.log(`Config API listening on port ${SERVER_PORT}`);
 });
