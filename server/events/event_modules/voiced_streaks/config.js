@@ -1,6 +1,6 @@
 import fs from "fs";
 
-const CONFIG_FILE = "./server/config.json";
+const CONFIG_FILE = "./server/events/event_modules/voiced_streaks/config.json";
 
 // Default config
 let config = {

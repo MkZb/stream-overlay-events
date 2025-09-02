@@ -1,10 +1,11 @@
 import WebSocket from 'ws'
 import 'dotenv/config'
 
-import * as config from './config.js';
 import * as oauth from './oauth.js';
+import { parseMessage } from './messageParser.js';
+import { handleMessage } from '../events/events.js';
 
-const API_URL = 'http://localhost:3001/api';
+export const API_URL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
 const BOT_ID = process.env.TWITCH_BOT_USER_ID;
 const CLIENT_ID = process.env.TWITCH_CLIENT_ID;
@@ -63,55 +64,13 @@ function handleWebSocketMessage(data) {
     }
 }
 
-// Track consecutive keyword streaks
-let keywordStreaks = {};
-let lastMatchedKeyword = null;
 
 function handleChatMessageEvent(data) {
-    const message = data.message.text.trim();
-    const cfg = config.getConfig();
-    let matchedKeyword = null;
-    let matchedKeywordObj = null;
-
-    // Find the first keyword that matches
-    // Possibly change that to match all keywords, not sure yet
-    for (const kw of cfg.keywords || []) {
-        if (message.includes(kw.word)) {
-            matchedKeyword = kw.word;
-            matchedKeywordObj = kw;
-            break;
-        }
-    }
-
-    if (matchedKeyword) {
-        // If same as last, increment, else reset
-        if (lastMatchedKeyword === matchedKeyword) {
-            keywordStreaks[matchedKeyword] = (keywordStreaks[matchedKeyword] || 0) + 1;
-        } else {
-            keywordStreaks[matchedKeyword] = 1;
-        }
-        lastMatchedKeyword = matchedKeyword;
-
-        // Use per-keyword threshold or global
-        const threshold = matchedKeywordObj.threshold || cfg.globalThreshold || 3;
-        if (keywordStreaks[matchedKeyword] >= threshold) {
-            // Play sound via API
-            fetch(`${API_URL}/trigger-sound`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sound: matchedKeywordObj.sound,
-                    playbackSpeed: Math.random() * (2 - 0.5) + 0.5,
-                    volume: matchedKeywordObj.volume
-                })
-            });
-            keywordStreaks[matchedKeyword] = 0; // reset streak
-        }
-    } else {
-        // No keyword matched, reset streaks
-        lastMatchedKeyword = null;
-        Object.keys(keywordStreaks).forEach(k => keywordStreaks[k] = 0);
-    }
+    const messageData = parseMessage(data);
+    handleMessage({
+        messageData: messageData,
+        apiLink: API_URL
+    })
 }
 
 async function registerEventSubListeners() {

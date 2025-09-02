@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';
-import { getConfig, updateConfig } from "./config.js";
+import { getConfig, updateConfig } from "./events/event_modules/voiced_streaks/config.js";
 import multer from 'multer';
 import fs from 'fs';
 import { WebSocketServer } from 'ws';

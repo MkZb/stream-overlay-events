@@ -29,7 +29,19 @@
       "sound": "TruthMeter.mp3",
       "volume": 0.74,
       "threshold": 2
+    },
+    {
+      "word": "ome5",
+      "sound": "ome5.mp3",
+      "volume": 1,
+      "threshold": 2
+    },
+    {
+      "word": "TWEAK",
+      "sound": "Tweak.mp3",
+      "volume": 1,
+      "threshold": 2
     }
   ],
-  "globalThreshold": 5
+  "globalThreshold": 2
 }
