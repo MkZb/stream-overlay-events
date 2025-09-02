@@ -1,12 +1,14 @@
 import 'dotenv/config'
 import express from 'express';
 import cors from 'cors';
-import { getConfig, updateConfig } from "./events/event_modules/voiced_streaks/config.js";
+import { getConfig, updateConfig } from './events/event_modules/voiced_streaks/config.js';
 import multer from 'multer';
 import fs from 'fs';
 import { WebSocketServer } from 'ws';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import sizeOf from 'image-size';
+import { randomInt } from 'crypto';
 
 const SERVER_PORT = process.env.SERVER_PORT || 3001;
 const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT || 3002;
@@ -93,6 +95,7 @@ app.post('/api/globalThreshold', (req, res) => {
 // --- Overlay WebSocket and API trigger ---
 const wss = new WebSocketServer({ port: WEBSOCKET_PORT });
 let overlayClients = [];
+
 wss.on('connection', (ws) => {
     overlayClients.push(ws);
     ws.on('close', () => {
@@ -112,6 +115,25 @@ app.post('/api/trigger-sound', (req, res) => {
     if (!sound) return res.status(400).json({ error: 'Missing sound' });
     const url = `/sounds/${sound}`;
     triggerOverlaySound(sound, url, volume, playbackSpeed || 1);
+    res.json({ success: true });
+});
+
+function triggerOverlayImage(data, x, y, duration) {
+    const msg = JSON.stringify({ type: 'show_image', data, x, y, duration });
+    overlayClients.forEach(ws => {
+        if (ws.readyState === ws.OPEN) ws.send(msg);
+    });
+}
+
+app.post('/api/showRandomEmote', (req, res) => {
+    const { id, duration } = req.body;
+    if (!id) return res.status(400).json({ error: 'Missing id' });
+    const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);
+    const dimensions = sizeOf(imageBuffer);
+    const base64 = imageBuffer.toString('base64');
+    const x = randomInt(0, 1920 - dimensions.width);
+    const y = randomInt(0, 1080 - dimensions.height);
+    triggerOverlayImage(`data:image/webp;base64,${base64}`, x || 0, y || 0, duration || 3000);
     res.json({ success: true });
 });
 

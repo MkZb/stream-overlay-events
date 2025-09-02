@@ -97,7 +97,7 @@ async function registerEventSubListeners() {
 
     if (response.status != 202) {
         let data = await response.json();
-        console.error("Failed to subscribe to channel.chat.message. API call returned status code " + response.status);
+        console.error('Failed to subscribe to channel.chat.message. API call returned status code ' + response.status);
         console.error(data);
         process.exit(1);
     } else {

@@ -18,7 +18,7 @@ export async function getAuth(maxRetries = 2) {
 
     if (response.status != 200) {
         let data = await response.json();
-        console.error("Token is not valid. /oauth2/validate returned status code " + response.status);
+        console.error('Token is not valid. /oauth2/validate returned status code ' + response.status);
         console.error(data);
         if (response.status == 401 && maxRetries > 0) {
             currentToken = await handleExpiredToken(maxRetries - 1);
@@ -27,7 +27,7 @@ export async function getAuth(maxRetries = 2) {
         }
     }
 
-    console.log("Validated token.");
+    console.log('Validated token.');
     return currentToken;
 }
 
@@ -58,7 +58,7 @@ async function getNewToken() {
     });
 
     if (response.status != 200) {
-        console.error("Failed to create a token /oauth2/token returned status code " + response.status);
+        console.error('Failed to create a token /oauth2/token returned status code ' + response.status);
         console.log(JSON.stringify(response, null, 2));
         process.exit(1);
     } else {

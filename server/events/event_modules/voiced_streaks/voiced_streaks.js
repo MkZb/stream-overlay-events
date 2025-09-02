@@ -1,10 +1,10 @@
-import * as config from "./config.js"
+import * as config from './config.js'
 
 const keywordStreaks = {};
 let lastMatchedKeyword = null;
 
 export default {
-    name: "voicedStreaks",
+    name: 'voicedStreaks',
     cooldown: 0,
     lastTriggered: 0,
 

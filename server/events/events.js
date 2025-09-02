@@ -1,9 +1,9 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath, pathToFileURL } from "url";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const eventsDir = path.join(__dirname, "event_modules");
+const eventsDir = path.join(__dirname, 'event_modules');
 
 const events = [];
 
@@ -13,14 +13,14 @@ for (const dir of fs.readdirSync(eventsDir, { withFileTypes: true })) {
         const moduleDir = path.join(eventsDir, dir.name);
         for (const file of fs.readdirSync(moduleDir)) {
             if (file.endsWith('js') && file === (dir.name + '.js')) {
-                console.log(file);
                 const modulePath = path.join(moduleDir, file);
                 const moduleUrl = pathToFileURL(modulePath).href;
 
                 const { default: event } = await import(moduleUrl);
-                if (event?.name && typeof event.shouldTrigger === "function") {
+                if (event?.name && typeof event.shouldTrigger === 'function') {
                     events.push(event);
                 }
+                console.log(`Module ${file} imported`);
             }
         }
     }

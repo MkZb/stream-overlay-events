@@ -9,7 +9,6 @@ export function parseMessage(data) {
 
     messageData['emotes'] = getMessageEmotes(data.message.text);
 
-    console.log(messageData['emotes']);
     return messageData;
 }
 

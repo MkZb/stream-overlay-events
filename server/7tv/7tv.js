@@ -1,11 +1,12 @@
 import 'dotenv/config'
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 const SEVENTV_API = 'https://7tv.io/v3';
 const ID = process.env.TWITCH_CHANNEL_ID;
+const GLOBAL_EMOTES_SET_ID = '01HKQT8EWR000ESSWF3625XCS4';
 
-const CACHE_DIR = path.join(process.cwd(), "cache", "emotes");
+const CACHE_DIR = path.join(process.cwd(), 'server', 'cache', 'emotes');
 
 if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -14,10 +15,24 @@ if (!fs.existsSync(CACHE_DIR)) {
 let channelEmotes = {};
 
 (async () => {
+    let globalData = await getGlobalEmotesData();
     let channelData = await getTwitchChannelData(ID);
-    parseEmotes(channelData);
+    parseEmotes(globalData, channelData);
     await cacheEmotes();
 })();
+
+async function getGlobalEmotesData() {
+    let response = await fetch(`${SEVENTV_API}/emote-sets/${GLOBAL_EMOTES_SET_ID}`, {
+        method: 'GET'
+    });
+
+    if (response.status != 200) {
+        console.error(`Couldn't recieve global emotes 7tv data. Response status: ${response.status}`);
+        return;
+    }
+
+    return await response.json();
+}
 
 async function getTwitchChannelData(id) {
     let response = await fetch(`${SEVENTV_API}/users/twitch/${id}`, {
@@ -32,8 +47,8 @@ async function getTwitchChannelData(id) {
     return await response.json();
 }
 
-function parseEmotes(channelData) {
-    if (!channelData?.emote_set) {
+function parseEmotes(globalData, channelData) {
+    if (!channelData?.emote_set && !globalData?.emotes) {
         return;
     }
 
@@ -45,7 +60,18 @@ function parseEmotes(channelData) {
             cdnLink: 'https:' + emote.data.host.url + '/4x.webp'
         }
     });
+
+    globalData.emotes.forEach(emote => {
+        channelEmotes[emote.id] = {
+            name: emote.name,
+            animated: emote.data.animated,
+            overlaying: Number.parseInt(emote.flags) === 1,
+            cdnLink: 'https:' + emote.data.host.url + '/4x.webp'
+        }
+    });
+
 }
+
 
 async function cacheEmotes() {
     for (const [id, emote] of Object.entries(channelEmotes)) {
