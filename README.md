@@ -1,8 +1,12 @@
-# Twitch Sound Streak Bot
+# DESCRIPTION IS OUT OF DATE
+
+This project evolved into entire container for a modules one of which was an initial idea of the project. Down bellow is description of a single module, this README will be updated later.
+
+## Twitch Sound Streak Bot
 
 This project is a Twitch-connected app/bot that listens to chat messages and triggers specific sounds when keywords streaks are detected. It also provides a configuration UI for managing keywords, sounds, thresholds, and playback volume.
 
-# Installation
+## Installation
 
 1. Create .env file in the root of the app and add next variables:
 
