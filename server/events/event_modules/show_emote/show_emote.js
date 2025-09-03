@@ -1,9 +1,15 @@
+import * as config from './config.js'
+
 import { randomInt } from 'crypto';
 
 export default {
-    name: 'showRandomEmote',
-    cooldown: 20000,
     lastTriggered: 0,
+    cooldown: 0,
+
+    reloadConfig() {
+        const cfg = config.getConfig();
+        this.cooldown = cfg.cooldown;
+    },
 
     shouldTrigger({ messageData }) {
         return messageData.emotes.length > 0;

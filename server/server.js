@@ -21,6 +21,43 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '../ui/build')));
 
+const modulesDir = path.join(__dirname, 'events', 'event_modules');
+
+// List all modules
+app.get('/api/modules', (req, res) => {
+    const modules = fs.readdirSync(modulesDir, { withFileTypes: true })
+        .filter(d => d.isDirectory())
+        .map(d => d.name);
+    res.json({ modules });
+});
+
+// Get config for a module
+app.get('/api/modules/:module/config', async (req, res) => {
+    try {
+        const mod = req.params.module;
+        const configPath = path.join(modulesDir, mod, 'config.js');
+        if (!fs.existsSync(configPath)) return res.status(404).json({ error: 'Module not found' });
+        const { getConfig } = await import(`./events/event_modules/${mod}/config.js`);
+        res.json(getConfig());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Update config for a module
+app.put('/api/modules/:module/config', express.json(), async (req, res) => {
+    try {
+        const mod = req.params.module;
+        const configPath = path.join(modulesDir, mod, 'config.js');
+        if (!fs.existsSync(configPath)) return res.status(404).json({ error: 'Module not found' });
+        const { updateConfig, getConfig } = await import(`./events/event_modules/${mod}/config.js`);
+        updateConfig(req.body);
+        res.json(getConfig());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // --- Settings API ---
 const soundsDir = path.join(__dirname, '../ui/build/sounds');
 if (!fs.existsSync(soundsDir)) fs.mkdirSync(soundsDir, { recursive: true });

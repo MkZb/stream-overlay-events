@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Paper, TextField, Button, List, ListItem, ListItemText, IconButton, Slider, Input, Dialog, DialogTitle, DialogContent, DialogActions, Grid } from '@mui/material';
+import { Container, Typography, Box, Paper, TextField, Button, List, ListItem, ListItemText, IconButton, Slider, Input, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Tabs, Tab } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -16,6 +15,9 @@ function ConfigApp() {
     const [editIdx, setEditIdx] = useState(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editData, setEditData] = useState({ word: '', threshold: '', volume: 1, sound: null });
+    const [modules, setModules] = useState([]);
+    const [selectedModule, setSelectedModule] = useState('');
+    const [moduleConfig, setModuleConfig] = useState(null);
 
     useEffect(() => {
         fetch(`${API_URL}/config`).then(res => res.json()).then(cfg => {
@@ -23,6 +25,23 @@ function ConfigApp() {
             setThreshold(cfg.globalThreshold || 3);
         });
     }, []);
+
+    useEffect(() => {
+        fetch(`${API_URL}/modules`)
+            .then(res => res.json())
+            .then(data => {
+                setModules(data.modules);
+                if (data.modules.length > 0) setSelectedModule(data.modules[0]);
+            });
+    }, []);
+
+    useEffect(() => {
+        if (selectedModule) {
+            fetch(`${API_URL}/modules/${selectedModule}/config`)
+                .then(res => res.json())
+                .then(cfg => setModuleConfig(cfg));
+        }
+    }, [selectedModule]);
 
     const handleAddKeyword = async () => {
         if (!newKeyword || !newSound) return;
@@ -85,70 +104,94 @@ function ConfigApp() {
         });
     };
 
+    const handleConfigChange = (key, value) => {
+        setModuleConfig({ ...moduleConfig, [key]: value });
+    };
 
+    const handleSave = () => {
+        fetch(`${API_URL}/modules/${selectedModule}/config`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(moduleConfig)
+        }).then(res => res.json()).then(cfg => setModuleConfig(cfg));
+    };
 
     return (
         <Container maxWidth="sm" sx={{ mt: 4 }}>
             <Paper sx={{ p: 3 }}>
-                <Typography variant="h4" gutterBottom>Sound Streak Bot Config</Typography>
-                <Box sx={{ mb: 2 }}>
-                    <Typography variant="h6">Add Keyword</Typography>
-                    <Grid container spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                        <Grid item xs={6} sm={4}>
-                            <TextField label="Keyword" value={newKeyword} onChange={e => setNewKeyword(e.target.value)} size="small" fullWidth />
-                        </Grid>
-                        <Grid item xs={3} sm={2}>
-                            <TextField label="Threshold" type="number" value={newThreshold} onChange={e => setNewThreshold(e.target.value)} size="small" fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                            <Box sx={{ px: 1 }}>
-                                <Typography gutterBottom>Volume: {newVolume}</Typography>
-                                <Slider
-                                    min={0}
-                                    max={1}
-                                    step={0.01}
-                                    value={Number(newVolume)}
-                                    onChange={(_, value) => setNewVolume(value)}
-                                    valueLabelDisplay="auto"
+                <Typography variant="h4" gutterBottom>Module Configurations</Typography>
+                <Tabs value={selectedModule} onChange={(_, v) => setSelectedModule(v)}>
+                    {modules.map(m => <Tab key={m} label={m} value={m} />)}
+                </Tabs>
+                {moduleConfig && (
+                    <Box sx={{ mt: 2 }}>
+                        {Object.entries(moduleConfig).map(([key, value]) => {
+                            // Handle array of objects (like keywords)
+                            if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+                                return (
+                                    <Box key={key} sx={{ mb: 3 }}>
+                                        <Typography variant="h6">{key}</Typography>
+                                        <List>
+                                            {value.map((item, idx) => (
+                                                <ListItem
+                                                    key={idx}
+                                                    secondaryAction={
+                                                        <IconButton edge="end" onClick={() => {
+                                                            // Remove item
+                                                            const updated = [...value];
+                                                            updated.splice(idx, 1);
+                                                            setModuleConfig({ ...moduleConfig, [key]: updated });
+                                                        }}>
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    }
+                                                >
+                                                    <ListItemText
+                                                        primary={Object.entries(item).map(([k, v]) => `${k}: ${v}`).join(', ')}
+                                                    />
+                                                    <IconButton edge="end" onClick={() => {
+                                                        // Optionally: open a dialog to edit this item
+                                                        // For brevity, you can inline-edit here or use a dialog like your keywords
+                                                    }}>
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                        {/* Add new item form */}
+                                        <Button
+                                            variant="outlined"
+                                            onClick={() => {
+                                                // Add a blank item (customize fields as needed)
+                                                const updated = [...value, {}];
+                                                setModuleConfig({ ...moduleConfig, [key]: updated });
+                                            }}
+                                        >
+                                            Add {key.slice(0, -1)}
+                                        </Button>
+                                    </Box>
+                                );
+                            }
+                            // Handle primitive values or arrays
+                            return (
+                                <TextField
+                                    key={key}
+                                    label={key}
+                                    value={typeof value === 'object' ? JSON.stringify(value) : value}
+                                    onChange={e => {
+                                        let val = e.target.value;
+                                        // Try to parse numbers/booleans
+                                        if (!isNaN(val)) val = Number(val);
+                                        setModuleConfig({ ...moduleConfig, [key]: val });
+                                    }}
+                                    fullWidth
+                                    margin="dense"
                                 />
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                            <Input type="file" onChange={e => setNewSound(e.target.files[0])} fullWidth />
-                        </Grid>
-                        <Grid item xs={12} sm={12}>
-                            <Button variant="contained" onClick={handleAddKeyword} fullWidth>Add</Button>
-                        </Grid>
-                    </Grid>
-                    <List>
-                        {keywords.map((k, i) => (
-                            <ListItem key={i} secondaryAction={
-                                <>
-                                    <IconButton edge="end" onClick={() => handleEditKeyword(i)}><EditIcon /></IconButton>
-                                    <IconButton edge="end" onClick={() => handleRemoveKeyword(i)}><DeleteIcon /></IconButton>
-                                </>
-                            }>
-                                <ListItemText
-                                    primary={k.word}
-                                    secondary={
-                                        <Grid container spacing={1} alignItems="center">
-                                            <Grid item xs={8} style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                <span title={k.sound}><b>Sound:</b> {k.sound}</span>
-                                            </Grid>
-                                            <Grid item xs={4}>
-                                                <span><b>Vol:</b> {k.volume} <b>Thr:</b> {k.threshold}</span>
-                                            </Grid>
-                                        </Grid>
-                                    }
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Box>
-                <Box sx={{ mb: 2 }}>
-                    <Typography gutterBottom>Global Threshold: {threshold}</Typography>
-                    <Slider min={1} max={30} value={threshold} onChange={handleThresholdChange} valueLabelDisplay="auto" />
-                </Box>
+                            );
+                        })}
+                        <Button variant="contained" sx={{ mt: 2 }} onClick={handleSave}>Save</Button>
+                    </Box>
+                )}
             </Paper>
             <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
                 <DialogTitle>Edit Keyword</DialogTitle>

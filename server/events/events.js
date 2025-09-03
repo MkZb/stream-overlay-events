@@ -17,7 +17,7 @@ for (const dir of fs.readdirSync(eventsDir, { withFileTypes: true })) {
                 const moduleUrl = pathToFileURL(modulePath).href;
 
                 const { default: event } = await import(moduleUrl);
-                if (event?.name && typeof event.shouldTrigger === 'function') {
+                if (typeof event.shouldTrigger === 'function') {
                     events.push(event);
                 }
                 console.log(`Module ${file} imported`);
@@ -33,6 +33,8 @@ for (const dir of fs.readdirSync(eventsDir, { withFileTypes: true })) {
 export function handleMessage(context) {
     for (const event of events) {
         const now = Date.now();
+        event.reloadConfig();
+        console.log(event.cooldown);
         const cooldownReady = !event.lastTriggered || now - event.lastTriggered > (event.cooldown || 0);
 
         if (cooldownReady && event.shouldTrigger(context)) {

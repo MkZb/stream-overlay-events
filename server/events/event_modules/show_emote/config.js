@@ -7,15 +7,7 @@ const CONFIG_FILE = path.join(__dirname, 'config.json');
 
 // Default config
 let config = {
-    keywords: [
-        {
-            word: 'Boink',
-            sound: 'spring.mp3',
-            volume: 1,
-            threshold: 3
-        }
-    ],
-    globalThreshold: 3
+    'cooldown': 10000
 };
 
 // Load config from disk if available

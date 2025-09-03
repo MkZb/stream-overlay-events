@@ -1,6 +1,6 @@
 # DESCRIPTION IS OUT OF DATE
 
-This project evolved into entire container for a modules one of which was an initial idea of the project. Down bellow is description of a single module, this README will be updated later.
+This project evolved into entire container for a modules one of which was an initial idea of the project. Down bellow is description of a single module, this README will be updated later. Also UI is COMOLETELY broken, you should change config.json files by hand now, it will take a long time to fix it.
 
 ## Twitch Sound Streak Bot
 

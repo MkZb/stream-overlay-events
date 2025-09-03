@@ -8,6 +8,8 @@ export default {
     cooldown: 0,
     lastTriggered: 0,
 
+    reloadConfig() { },
+
     shouldTrigger({ messageData }) {
         const cfg = config.getConfig();
         const text = messageData.message;
