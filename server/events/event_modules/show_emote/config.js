@@ -1,4 +1,4 @@
-import { createConfig } from '../../../utils/configManager.js';
+import { createConfig } from '../../../utils/modulesConfigManager.js';
 
 const defaultConfig = {
     cooldown: 10000,

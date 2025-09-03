@@ -1,5 +1,5 @@
 {
-  "name": "Show emote from chat",
+  "description": "Show emote from chat",
   "cooldown": "1000",
   "durationMin": 4000,
   "durationMax": 6000

@@ -4,7 +4,7 @@ const keywordStreaks = {};
 let lastMatchedKeyword = null;
 
 export default {
-    name: 'voicedStreaks',
+    name: 'voiced_streaks',
     cooldown: 0,
     lastTriggered: 0,
     keywords: [],
@@ -73,5 +73,6 @@ export default {
                 volume: kw.volume
             })
         });
+        console.log(`[${this.name}] Event triggered`);
     }
 };

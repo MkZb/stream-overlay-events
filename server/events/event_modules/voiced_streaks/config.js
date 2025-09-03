@@ -1,15 +1,9 @@
-import { createConfig } from '../../../utils/configManager.js';
+import { createConfig } from '../../../utils/modulesConfigManager.js';
 
 const defaultConfig = {
+    name: 'voiced_streaks',
     cooldown: 0,
-    keywords: [
-        {
-            word: "Boink",
-            sound: "spring.mp3",
-            volume: 1,
-            threshold: 3
-        }
-    ],
+    keywords: [],
     globalThreshold: 3
 };
 

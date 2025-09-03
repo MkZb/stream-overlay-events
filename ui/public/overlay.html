@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sound Streak Overlay</title>
+    <title>Events Overlay</title>
     <style>
         body {
             background: transparent;
@@ -37,15 +37,15 @@
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
-            // Handle sound event
+            // Events handling
             if (data.type === 'play_sound') {
                 // Create a new audio element for each sound
                 const player = new Audio(data.url);
                 player.playbackRate = data.playbackSpeed || 1;
                 player.volume = data.volume;
                 player.play();
-                status.textContent = `Playing: ${data.sound}`;
-                setTimeout(() => { status.textContent = ''; }, 2000);
+                status.textContent = '';
+                setTimeout(() => { }, 2000);
 
                 player.onended = () => player.remove();
             } else if (data.type === 'show_image') {

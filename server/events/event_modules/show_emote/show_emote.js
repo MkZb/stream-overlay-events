@@ -3,6 +3,7 @@ import * as config from './config.js'
 import { randomInt } from 'crypto';
 
 export default {
+    name: 'show_emote',
     lastTriggered: 0,
     cooldown: 0,
     durationMin: 3000,
@@ -29,5 +30,6 @@ export default {
                 duration: randomInt(this.durationMin, this.durationMax)
             })
         });
+        console.log(`[${this.name}] Event triggered`);
     }
 };
