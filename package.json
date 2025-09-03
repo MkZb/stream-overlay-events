@@ -1,5 +1,5 @@
 {
-  "name": "sound_streak",
+  "name": "stream-overlay-events",
   "version": "1.0.0",
   "type": "module",
   "description": "This project is a Twitch-connected app/bot that listens to chat messages and triggers specific sounds when keywords are detected. It also provides a configuration UI for managing keywords, sound triggers, thresholds, and playback speed.",

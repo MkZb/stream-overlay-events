@@ -41,6 +41,12 @@
       "sound": "Tweak.mp3",
       "volume": 1,
       "threshold": 2
+    },
+    {
+      "word": "WOOF",
+      "sound": "woof.mp3",
+      "volume": 1,
+      "threshold": 2
     }
   ],
   "globalThreshold": 2

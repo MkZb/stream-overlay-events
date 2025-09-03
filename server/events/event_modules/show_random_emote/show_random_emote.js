@@ -2,7 +2,7 @@ import { randomInt } from 'crypto';
 
 export default {
     name: 'showRandomEmote',
-    cooldown: 30000,
+    cooldown: 20000,
     lastTriggered: 0,
 
     shouldTrigger({ messageData }) {
@@ -16,7 +16,7 @@ export default {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 id: emote.key,
-                duration: randomInt(3000, 5000)
+                duration: randomInt(3000, 6000)
             })
         });
     }

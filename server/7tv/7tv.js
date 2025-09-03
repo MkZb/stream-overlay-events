@@ -72,10 +72,18 @@ function parseEmotes(globalData, channelData) {
 
 }
 
+// TODO: make a fallback in case there's no webp or 4x
+function isWebpAvailable(emote) {
+
+}
 
 async function cacheEmotes() {
     for (const [id, emote] of Object.entries(channelEmotes)) {
         const filename = path.join(CACHE_DIR, `${id}.webp`);
+
+        if (fs.existsSync(filename)) {
+            continue;
+        }
 
         try {
             const res = await fetch(emote.cdnLink);
