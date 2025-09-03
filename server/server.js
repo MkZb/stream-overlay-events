@@ -162,7 +162,7 @@ function triggerOverlayImage(data, x, y, duration) {
     });
 }
 
-app.post('/api/showRandomEmote', (req, res) => {
+app.post('/api/showEmote', (req, res) => {
     const { id, duration } = req.body;
     if (!id) return res.status(400).json({ error: 'Missing id' });
     const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);

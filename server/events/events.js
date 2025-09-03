@@ -34,7 +34,6 @@ export function handleMessage(context) {
     for (const event of events) {
         const now = Date.now();
         event.reloadConfig();
-        console.log(event.cooldown);
         const cooldownReady = !event.lastTriggered || now - event.lastTriggered > (event.cooldown || 0);
 
         if (cooldownReady && event.shouldTrigger(context)) {

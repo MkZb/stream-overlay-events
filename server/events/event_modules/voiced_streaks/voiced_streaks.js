@@ -7,11 +7,17 @@ export default {
     name: 'voicedStreaks',
     cooldown: 0,
     lastTriggered: 0,
+    keywords: [],
+    globalThreshold: 2,
 
-    reloadConfig() { },
+    reloadConfig() {
+        const cfg = config.getConfig();
+        this.cooldown = cfg.cooldown;
+        this.keywords = cfg.keywords;
+        this.globalThreshold = cfg.globalThreshold;
+    },
 
     shouldTrigger({ messageData }) {
-        const cfg = config.getConfig();
         const text = messageData.message;
 
         let matchedKeyword = null;
@@ -19,7 +25,7 @@ export default {
 
         // Checking for the first possible keyword to match
         const words = text.split(/\s+/);
-        for (const kw of cfg.keywords || []) {
+        for (const kw of this.keywords || []) {
             if (words.includes(kw.word)) {
                 matchedKeyword = kw.word;
                 matchedKeywordObj = kw;
@@ -42,7 +48,7 @@ export default {
         }
         lastMatchedKeyword = matchedKeyword;
 
-        const threshold = matchedKeywordObj.threshold || cfg.globalThreshold || 3;
+        const threshold = matchedKeywordObj.threshold || this.globalThreshold || 2;
 
         // Only trigger if streak reached threshold
         if (keywordStreaks[matchedKeyword] >= threshold) {

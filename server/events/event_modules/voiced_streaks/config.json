@@ -1,6 +1,6 @@
 {
   "name": "Voiced keywords streaks",
-  "cooldown": "10000",
+  "cooldown": "0",
   "keywords": [
     {
       "word": "Boink",
