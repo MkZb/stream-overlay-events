@@ -81,7 +81,7 @@
     <script>
         const handlers = {
             play_sound: handlePlaySound,
-            show_emote: handleShowImage,
+            show_emote: handleShowEmote,
             guess_emote: handleGuessEmote,
             guess_update: handleGuessUpdate
         };
@@ -107,7 +107,7 @@
             player.onended = () => player.remove();
         }
 
-        function handleShowImage(data) {
+        function handleShowEmote(data) {
             const img = document.createElement('img');
             img.src = data.data;
             img.className = 'overlay-unit overlay-image';
