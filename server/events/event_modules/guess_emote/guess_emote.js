@@ -1,7 +1,6 @@
-import getChannelEmotes, { getEmoteImage, getRandomEmote } from '../../../7tv/7tv.js';
+import { getEmoteImage, getRandomEmote } from '../../../7tv/7tv.js';
 import { broadcastOverlayEvent } from '../../../websocket.js';
 import * as config from './config.js'
-import { randomInt } from 'crypto';
 
 export default {
     lastTriggered: 0,
