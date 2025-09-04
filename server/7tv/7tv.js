@@ -82,6 +82,7 @@ async function cacheEmotes() {
         const filename = path.join(CACHE_DIR, `${id}.webp`);
 
         if (fs.existsSync(filename)) {
+            channelEmotes[id].dir = filename;
             continue;
         }
 
@@ -94,7 +95,7 @@ async function cacheEmotes() {
 
             const buffer = Buffer.from(await res.arrayBuffer());
             fs.writeFileSync(filename, buffer);
-            channelEmotes['dir'] = filename;
+            channelEmotes[id].dir = filename;
             console.log(`Cached emote ${emote.name} -> ${filename}`);
         } catch (err) {
             console.error(`Error caching emote ${emote.name}:`, err);

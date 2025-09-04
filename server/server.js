@@ -174,8 +174,28 @@ app.post('/api/showEmote', (req, res) => {
     res.json({ success: true });
 });
 
+function broadcastOverlayEvent(payload) {
+    const msg = JSON.stringify(payload);
+    overlayClients.forEach(ws => {
+        if (ws.readyState === ws.OPEN) ws.send(msg);
+    });
+}
+
 app.post('/api/guessEmote', (req, res) => {
-    
+    const { type, id, x, y, duration } = req.body;
+    if (!id) return res.status(400).json({ error: 'Missing image link' });
+    const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);
+    const base64 = imageBuffer.toString('base64');
+    //const x = randomInt(0, 1920 - dimensions.width);
+    //const y = randomInt(0, 1080 - dimensions.height);
+    broadcastOverlayEvent({ type, data: `data:image/webp;base64,${base64}`, x, y, duration, id });
+    res.json({ success: true });
+});
+
+app.post('/api/overlay/broadcast', (req, res) => {
+    const payload = req.body;
+    broadcastOverlayEvent(payload);
+    res.json({ success: true });
 });
 
 app.listen(SERVER_PORT, () => {

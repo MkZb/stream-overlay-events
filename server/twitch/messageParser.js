@@ -7,7 +7,7 @@ export function parseMessage(data) {
         timestamp: Date.now()
     }
 
-    messageData['emotes'] = getMessageEmotes(data.message.text);
+    messageData.emotes = getMessageEmotes(data.message.text);
 
     return messageData;
 }

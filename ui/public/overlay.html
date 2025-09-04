@@ -29,6 +29,49 @@
             transition: opacity 0.5s ease;
             will-change: opacity;
         }
+
+        .guess-emote {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .guess-emote-img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .guess-emote-text {
+            margin: 4px 0;
+            font-size: 0.9em;
+        }
+
+        .guess-emote-reveal {
+            position: relative;
+            width: 100%;
+            height: 85%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .guess-emote-reveal img {
+            display: inline-block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            clip-path: inset(0 100% 0 0);
+            transition: clip-path linear;
+        }
     </style>
 </head>
 
@@ -36,23 +79,23 @@
     <div id="overlay"></div>
 
     <script>
+        const handlers = {
+            play_sound: handlePlaySound,
+            show_image: handleShowImage,
+            guess_emote: handleGuessEmote,
+            guess_update: handleGuessUpdate
+        };
+
         const ws = new WebSocket('ws://localhost:3002');
         const status = document.getElementById('sound-status');
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
-            switch (data.type) {
-                case 'play_sound':
-                    handlePlaySound(data);
-                    break;
-                case 'show_image':
-                    handleShowImage(data);
-                    break;
-                case 'guess_emote':
-                    handleGuessEmote(data);
-                default:
-                    break;
+            if (handlers[data.type]) {
+                handlers[data.type](data);
+            } else {
+                console.warn("Unknown event:", data.type);
             }
         };
 
@@ -80,6 +123,58 @@
                 img.style.opacity = 0;
                 img.addEventListener('transitionend', () => img.remove(), { once: true });
             }, data.duration || (3000 - 500));
+        }
+
+        function handleGuessEmote(data) {
+            const unit = document.createElement('div');
+            unit.className = 'overlay-unit guess-emote';
+            unit.dataset.id = data.id;
+
+            unit.style.left = (data.x || 0) + 'px';
+            unit.style.top = (data.y || 0) + 'px';
+            unit.style.transform = 'translate(-50%, -50%)'; // center it
+
+            // Image
+            const imgWrap = document.createElement("div");
+            imgWrap.className = "guess-emote-reveal";
+            const img = document.createElement('img');
+            img.src = data.data;
+            imgWrap.appendChild(img);
+
+            // Text
+            const text = document.createElement('div');
+            text.className = 'guess-emote-text';
+            text.textContent = data.prompt || 'Guess the emote!';
+
+            unit.appendChild(imgWrap);
+            unit.appendChild(bar);
+            unit.appendChild(text);
+
+            document.getElementById('overlay').appendChild(unit);
+
+            img.style.clipPath = "inset(0 100% 0 0)";
+            img.offsetHeight;
+            img.style.transition = `clip-path ${(data.duration - 4000) || 10000}ms linear`;
+            img.style.clipPath = "inset(0 0 0 0)";
+
+            // Auto-remove
+            setTimeout(() => unit.remove(), data.duration || 10000);
+        }
+
+        function handleGuessUpdate(data) {
+            const unit = document.querySelector(`.guess-emote[data-id="${data.id}"]`);
+            if (!unit) return;
+
+            const img = unit.querySelector("img");
+
+            const computed = getComputedStyle(img);
+            img.style.transition = "none";
+            img.style.clipPath = "inset(0 0 0 0)";
+
+            const text = unit.querySelector(".guess-emote-text");
+            text.textContent = `${data.user} guessed ${data.answer} correctly!`;
+
+            setTimeout(() => unit.remove(), 10000);
         }
     </script>
 </body>
