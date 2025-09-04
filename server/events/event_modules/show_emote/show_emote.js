@@ -1,6 +1,8 @@
+import { getEmoteImage } from '../../../7tv/7tv.js';
 import * as config from './config.js'
-
+import sizeOf from 'image-size';
 import { randomInt } from 'crypto';
+import { broadcastOverlayEvent } from '../../../websocket.js';
 
 export default {
     lastTriggered: 0,
@@ -22,16 +24,30 @@ export default {
         return messageData.emotes.length > 0;
     },
 
-    trigger({ messageData, apiLink }) {
+    trigger({ messageData }) {
         const emote = messageData.emotes[randomInt(0, messageData.emotes.length)];
-        fetch(`${apiLink}/showEmote`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: emote.key,
-                duration: randomInt(this.durationMin, this.durationMax)
-            })
-        });
+        const emoteId = emote.key;
+
+        const imageBuffer = getEmoteImage({ id: emoteId });
+
+        if (!imageBuffer) {
+            console.error(`[${this.name}]Couldn't find an image with id ${emoteId}`);
+            return;
+        }
+
+        const dimensions = sizeOf(imageBuffer);
+        const base64 = imageBuffer.toString('base64');
+        const x = randomInt(0, 1920 - dimensions.width);
+        const y = randomInt(0, 1080 - dimensions.height);
+
+        broadcastOverlayEvent({
+            type: 'show_emote',
+            id: emote.key,
+            duration: randomInt(this.durationMin, this.durationMax),
+            x,
+            y,
+            data: `data:image/webp;base64,${base64}`
+        })
         console.log(`[${this.name}] Event triggered`);
     }
 };

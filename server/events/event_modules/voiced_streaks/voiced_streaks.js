@@ -1,3 +1,4 @@
+import { broadcastOverlayEvent } from '../../../websocket.js';
 import * as config from './config.js'
 
 const keywordStreaks = {};
@@ -62,19 +63,18 @@ export default {
         return false;
     },
 
-    trigger({ apiLink }) {
+    trigger(context) {
         const kw = this._matchedKeywordObj;
         if (!kw) return;
 
-        fetch(`${apiLink}/trigger-sound`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sound: kw.sound,
-                playbackSpeed: Math.random() * (2 - 0.5) + 0.5,
-                volume: kw.volume
-            })
+        broadcastOverlayEvent({
+            type: 'play_sound',
+            url: `/sounds/${kw.sound}`,
+            sound: kw.sound,
+            playbackSpeed: Math.random() * (2 - 0.5) + 0.5,
+            volume: kw.volume
         });
+
         console.log(`[${this.name}] Event triggered`);
     }
 };

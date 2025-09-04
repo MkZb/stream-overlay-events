@@ -1,4 +1,5 @@
-import getChannelEmotes from '../../../7tv/7tv.js';
+import getChannelEmotes, { getEmoteImage, getRandomEmote } from '../../../7tv/7tv.js';
+import { broadcastOverlayEvent } from '../../../websocket.js';
 import * as config from './config.js'
 import { randomInt } from 'crypto';
 
@@ -28,44 +29,45 @@ export default {
         return this.isEnabled;
     },
 
-    trigger({ apiLink }) {
+    trigger(context) {
         const gameId = Date.now().toString();
 
-        // Pick random image/answer
-        const channelEmotes = Object.entries(getChannelEmotes());
-        if (!channelEmotes) {
+        const { id, data } = getRandomEmote();
+
+        if (!id) {
             console.warn('No channel emotes found');
             return;
         }
-        const emoteEntry = channelEmotes[randomInt(0, channelEmotes.length)];
-        const emoteId = emoteEntry[0];
-        const emoteData = emoteEntry[1];
 
         const game = {
-            answer: emoteData.name,
-            id: `${emoteId}`,
+            answer: data.name,
+            id,
             expiresAt: Date.now() + this.duration
         };
 
         this.activeGame = game;
 
-        fetch(`${apiLink}/guessEmote`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'guess_emote',
-                id: game.id,
-                duration: this.duration,
-                revealTime: this.revealTime,
-                x: this.x,
-                y: this.y
-            })
+        const imageBuffer = getEmoteImage({ id });
+        if (!imageBuffer) {
+            console.error(`[${this.name}]Couldn't find an image with id ${id}`);
+            return;
+        }
+        const base64 = imageBuffer.toString('base64');
+
+        broadcastOverlayEvent({
+            type: 'guess_emote',
+            id: game.id,
+            duration: this.duration,
+            revealTime: this.revealTime,
+            x: this.x,
+            y: this.y,
+            data: `data:image/webp;base64,${base64}`
         });
 
         console.log(`[${this.name}] Game started. Current answer: ${this.activeGame.answer}`);
     },
 
-    onMessage({ messageData, apiLink }) {
+    onMessage({ messageData }) {
         if (!this.activeGame) return;
         if (Date.now() > this.activeGame.expiresAt) {
             this.activeGame = null; // expired
@@ -74,15 +76,11 @@ export default {
 
         if (messageData.emotes.some(obj => obj.word === this.activeGame.answer)) {
             // Correct guess
-            fetch(`${apiLink}/overlay/broadcast`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'guess_update',
-                    id: this.activeGame.id,
-                    answer: this.activeGame.answer,
-                    user: messageData.username,
-                })
+            broadcastOverlayEvent({
+                type: 'guess_update',
+                id: this.activeGame.id,
+                answer: this.activeGame.answer,
+                user: messageData.username,
             });
 
             console.log(`[${this.name}] ${messageData.username} guessed correctly!`);

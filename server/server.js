@@ -4,14 +4,11 @@ import cors from 'cors';
 import { getConfig, updateConfig } from './events/event_modules/voiced_streaks/config.js';
 import multer from 'multer';
 import fs from 'fs';
-import { WebSocketServer } from 'ws';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import sizeOf from 'image-size';
-import { randomInt } from 'crypto';
+
 
 const SERVER_PORT = process.env.SERVER_PORT || 3001;
-const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT || 3002;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -126,73 +123,6 @@ app.post('/api/globalThreshold', (req, res) => {
     if (typeof globalThreshold !== 'number' || globalThreshold < 1) return res.status(400).json({ error: 'Invalid threshold' });
     config.globalThreshold = globalThreshold;
     updateConfig({ globalThreshold: config.globalThreshold });
-    res.json({ success: true });
-});
-
-// --- Overlay WebSocket and API trigger ---
-const wss = new WebSocketServer({ port: WEBSOCKET_PORT });
-let overlayClients = [];
-
-wss.on('connection', (ws) => {
-    overlayClients.push(ws);
-    ws.on('close', () => {
-        overlayClients = overlayClients.filter(c => c !== ws);
-    });
-});
-
-function triggerOverlaySound(sound, url, volume, playbackSpeed = 1.0) {
-    const msg = JSON.stringify({ type: 'play_sound', sound, url, volume, playbackSpeed });
-    overlayClients.forEach(ws => {
-        if (ws.readyState === ws.OPEN) ws.send(msg);
-    });
-}
-
-app.post('/api/trigger-sound', (req, res) => {
-    const { sound, playbackSpeed, volume } = req.body;
-    if (!sound) return res.status(400).json({ error: 'Missing sound' });
-    const url = `/sounds/${sound}`;
-    triggerOverlaySound(sound, url, volume, playbackSpeed || 1);
-    res.json({ success: true });
-});
-
-function triggerOverlayImage(data, x, y, duration) {
-    const msg = JSON.stringify({ type: 'show_image', data, x, y, duration });
-    overlayClients.forEach(ws => {
-        if (ws.readyState === ws.OPEN) ws.send(msg);
-    });
-}
-
-app.post('/api/showEmote', (req, res) => {
-    const { id, duration } = req.body;
-    if (!id) return res.status(400).json({ error: 'Missing id' });
-    const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);
-    const dimensions = sizeOf(imageBuffer);
-    const base64 = imageBuffer.toString('base64');
-    const x = randomInt(0, 1920 - dimensions.width);
-    const y = randomInt(0, 1080 - dimensions.height);
-    triggerOverlayImage(`data:image/webp;base64,${base64}`, x || 0, y || 0, duration || 3000);
-    res.json({ success: true });
-});
-
-function broadcastOverlayEvent(payload) {
-    const msg = JSON.stringify(payload);
-    overlayClients.forEach(ws => {
-        if (ws.readyState === ws.OPEN) ws.send(msg);
-    });
-}
-
-app.post('/api/guessEmote', (req, res) => {
-    const { type, id, x, y, duration, revealTime} = req.body;
-    if (!id) return res.status(400).json({ error: 'Missing image link' });
-    const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);
-    const base64 = imageBuffer.toString('base64');
-    broadcastOverlayEvent({ type, data: `data:image/webp;base64,${base64}`, x, y, duration, id, revealTime});
-    res.json({ success: true });
-});
-
-app.post('/api/overlay/broadcast', (req, res) => {
-    const payload = req.body;
-    broadcastOverlayEvent(payload);
     res.json({ success: true });
 });
 

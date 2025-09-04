@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import fs from 'fs';
 import path from 'path';
+import { randomInt } from 'crypto';
+
 
 const SEVENTV_API = 'https://7tv.io/v3';
 const ID = process.env.TWITCH_CHANNEL_ID;
@@ -105,4 +107,38 @@ async function cacheEmotes() {
 
 export default function getChannelEmotes() {
     return channelEmotes;
+}
+
+export function getEmoteImage({ id, name }) {
+    if (!id && !name) {
+        console.warn('To get an emote id or name should be specified');
+        return;
+    }
+
+    if (id) {
+        return fs.readFileSync(path.join(CACHE_DIR, `${id}.webp`));
+    }
+
+    if (name) {
+        return fs.readFileSync(path.join(CACHE_DIR, `${getEmoteId({ name })}.webp`));
+    }
+
+}
+
+function getEmoteId({ name }) {
+    for (const [id, emote] of Object.entries(channelEmotes)) {
+        if (emote.name === name) {
+            return id;
+        }
+    }
+    console.warn(`Emote ${name} wasn't  found in channel emotes`);
+    return null;
+}
+
+export function getRandomEmote() {
+    const entries = Object.entries(channelEmotes);
+    if (!entries.length) return null;
+
+    const [id, data] = entries[randomInt(0, entries.length)];
+    return { id, data };
 }
