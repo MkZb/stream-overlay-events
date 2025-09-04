@@ -60,6 +60,7 @@ export default {
             revealTime: this.revealTime,
             x: this.x,
             y: this.y,
+            answer: game.answer,
             data: `data:image/webp;base64,${base64}`
         });
 

@@ -31,46 +31,58 @@
         }
 
         .guess-emote {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .guess-emote-img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .guess-emote-text {
-            margin: 4px 0;
-            font-size: 0.9em;
-        }
-
-        .guess-emote-reveal {
-            position: relative;
-            width: 100%;
-            height: 85%;
+            transform: translate(-50%, -50%);
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 200px;
+            transition: opacity 0.5s ease;
+        }
+
+        .guess-emote-top-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+            width: 100%;
+            line-height: 1.2;
+            min-height: 1.2em;
+            margin-bottom: 4px;
+            color: rgb(22, 198, 211);
+            -webkit-text-stroke-width: 1px;
+            -webkit-text-stroke-color: black;
+            font-size: 1.8em
+        }
+
+        .guess-emote-container {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            max-width: 200px;
             overflow: hidden;
         }
 
-        .guess-emote-reveal img {
-            display: inline-block;
-            width: auto;
-            height: auto;
+        .guess-emote-container img {
             max-width: 100%;
             max-height: 100%;
-            clip-path: inset(0 100% 0 0);
+            object-fit: contain;
+            display: block;
+
             transition: clip-path linear;
+            clip-path: inset(0 100% 0 0);
+        }
+
+        .guess-emote-bottom-text {
+            color: rgb(251, 255, 2);
+            -webkit-text-stroke-width: 1px;
+            -webkit-text-stroke-color: black;
+            margin-top: 4px;
+            text-align: center;
+            width: auto;
+            max-width: 100%;
+            word-wrap: break-word;
+            font-size: 1.8em
         }
     </style>
 </head>
@@ -132,32 +144,45 @@
 
             unit.style.left = (data.x || 0) + 'px';
             unit.style.top = (data.y || 0) + 'px';
-            unit.style.transform = 'translate(-50%, -50%)'; // center it
+            //unit.style.transform = 'translate(-50%, -50%)'; // center it
+
+
+            // Top Text
+            const topText = document.createElement('div');
+            topText.className = 'guess-emote-top-text';
+            topText.textContent = '';
 
             // Image
             const imgWrap = document.createElement("div");
-            imgWrap.className = "guess-emote-reveal";
+            imgWrap.className = "guess-emote-container";
             const img = document.createElement('img');
             img.src = data.data;
             imgWrap.appendChild(img);
 
-            // Text
-            const text = document.createElement('div');
-            text.className = 'guess-emote-text';
-            text.textContent = data.prompt || 'Guess the emote!';
+            // Bottom Text
+            const bottomText = document.createElement('div');
+            bottomText.className = 'guess-emote-bottom-text';
+            bottomText.textContent = 'Guess the emote!';
 
+            unit.appendChild(topText);
             unit.appendChild(imgWrap);
-            unit.appendChild(text);
+            unit.appendChild(bottomText);
 
             document.getElementById('overlay').appendChild(unit);
 
+            // Reveal animation
             img.style.clipPath = "inset(0 100% 0 0)";
             img.offsetHeight;
             img.style.transition = `clip-path ${data.revealTime || 10000}ms linear`;
             img.style.clipPath = "inset(0 0 0 0)";
 
             // Auto-remove
-            setTimeout(() => unit.remove(), data.duration || 10000);
+            setTimeout(() => {
+                topText.textContent = 'No one won 😢';
+                bottomText.textContent = data.answer;
+            }, data.duration || 10000);
+            setTimeout(() => unit.style.opacity = 0, data.duration + 5000 - 500 || 10000);
+            setTimeout(() => unit.remove(), data.duration + 5000 || 10000);
         }
 
         function handleGuessUpdate(data) {
@@ -170,9 +195,13 @@
             img.style.transition = "none";
             img.style.clipPath = "inset(0 0 0 0)";
 
-            const text = unit.querySelector(".guess-emote-text");
-            text.textContent = `${data.user} guessed ${data.answer} correctly!`;
+            const topText = unit.querySelector(".guess-emote-top-text");
+            topText.textContent = `${data.user} 🥳`;
 
+            const bottomText = unit.querySelector(".guess-emote-bottom-text");
+            bottomText.textContent = `${data.answer}`;
+
+            setTimeout(() => unit.style.opacity = 0, 10000 - 500);
             setTimeout(() => unit.remove(), 10000);
         }
     </script>
