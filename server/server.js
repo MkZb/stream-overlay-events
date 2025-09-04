@@ -174,6 +174,10 @@ app.post('/api/showEmote', (req, res) => {
     res.json({ success: true });
 });
 
+app.post('/api/guessEmote', (req, res) => {
+    
+});
+
 app.listen(SERVER_PORT, () => {
     console.log(`Config API listening on port ${SERVER_PORT}`);
 });

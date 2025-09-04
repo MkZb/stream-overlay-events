@@ -1,25 +1,25 @@
 import * as config from './config.js'
 
-import { randomInt } from 'crypto';
-
 export default {
     lastTriggered: 0,
-    name: 'show_emote',
+    name: 'guess_emote',
     isEnabled: true,
-    cooldown: 0,
-    durationMin: 3000,
-    durationMax: 6000,
+    cooldown: 10 * 60 * 1000,
+    duration: 1 * 60 * 1000,
+    x: 0,
+    y: 0,
 
     reloadConfig() {
         const cfg = config.getConfig();
         this.isEnabled = cfg.isEnabled;
         this.cooldown = cfg.cooldown;
-        this.durationMin = cfg.durationMin;
-        this.durationMax = cfg.durationMax;
+        this.duration = cfg.duration;
+        this.x = cfg.x;
+        this.y = cfg.y;
     },
 
-    shouldTrigger({ messageData }) {
-        return messageData.emotes.length > 0;
+    shouldTrigger(context) {
+        return true;
     },
 
     trigger({ messageData, apiLink }) {

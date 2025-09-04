@@ -4,14 +4,16 @@ const keywordStreaks = {};
 let lastMatchedKeyword = null;
 
 export default {
-    name: 'voiced_streaks',
-    cooldown: 0,
     lastTriggered: 0,
+    name: 'voiced_streaks',
+    isEnabled: true,
+    cooldown: 0,
     keywords: [],
     globalThreshold: 2,
 
     reloadConfig() {
         const cfg = config.getConfig();
+        this.isEnabled = cfg.isEnabled;
         this.cooldown = cfg.cooldown;
         this.keywords = cfg.keywords;
         this.globalThreshold = cfg.globalThreshold;

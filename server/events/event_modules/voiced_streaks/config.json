@@ -1,6 +1,7 @@
 {
+  "isEnabled": true,
   "descriiption": "Voiced keywords streaks",
-  "cooldown": "0",
+  "cooldown": 0,
   "keywords": [
     {
       "word": "Boink",

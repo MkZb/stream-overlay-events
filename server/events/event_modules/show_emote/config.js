@@ -1,6 +1,7 @@
 import { createConfig } from '../../../utils/modulesConfigManager.js';
 
 const defaultConfig = {
+    isEnabled: true,
     cooldown: 10000,
     durationMin: 3000,
     durationMax: 6000

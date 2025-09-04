@@ -1,7 +1,7 @@
 import { createConfig } from '../../../utils/modulesConfigManager.js';
 
 const defaultConfig = {
-    name: 'voiced_streaks',
+    isEnabled: true,
     cooldown: 0,
     keywords: [],
     globalThreshold: 3

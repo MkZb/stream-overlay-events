@@ -1,6 +1,7 @@
 {
+  "isEnabled": true,
   "description": "Show emote from chat",
-  "cooldown": "1000",
+  "cooldown": 10000,
   "durationMin": 4000,
   "durationMax": 6000
 }

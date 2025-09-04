@@ -11,12 +11,15 @@
             margin: 0;
         }
 
-        #sound-status {
+        #overlay {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay-unit {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 2em;
+            pointer-events: none;
         }
 
         .overlay-image {
@@ -24,12 +27,14 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
+            will-change: opacity;
         }
     </style>
 </head>
 
 <body>
-    <div id="sound-status"></div>
+    <div id="overlay"></div>
+
     <script>
         const ws = new WebSocket('ws://localhost:3002');
         const status = document.getElementById('sound-status');
@@ -37,37 +42,45 @@
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
-            // Events handling
-            if (data.type === 'play_sound') {
-                // Create a new audio element for each sound
-                const player = new Audio(data.url);
-                player.playbackRate = data.playbackSpeed || 1;
-                player.volume = data.volume;
-                player.play();
-                status.textContent = '';
-                setTimeout(() => { }, 2000);
-
-                player.onended = () => player.remove();
-            } else if (data.type === 'show_image') {
-                const img = document.createElement('img');
-                img.src = data.data;
-                img.className = 'overlay-image';
-
-                img.style.left = (data.x || 0) + 'px';
-                img.style.top = (data.y || 0) + 'px';
-
-                document.body.appendChild(img);
-
-                requestAnimationFrame(() => {
-                    img.style.opacity = 1;
-                });
-
-                setTimeout(() => {
-                    img.style.opacity = 0;
-                    img.addEventListener("transitionend", () => img.remove(), { once: true });
-                }, data.duration || 3000);
+            switch (data.type) {
+                case 'play_sound':
+                    handlePlaySound(data);
+                    break;
+                case 'show_image':
+                    handleShowImage(data);
+                    break;
+                case 'guess_emote':
+                    handleGuessEmote(data);
+                default:
+                    break;
             }
         };
+
+        function handlePlaySound(data) {
+            const player = new Audio(data.url);
+            player.playbackRate = data.playbackSpeed || 1;
+            player.volume = data.volume;
+            player.play();
+            player.onended = () => player.remove();
+        }
+
+        function handleShowImage(data) {
+            const img = document.createElement('img');
+            img.src = data.data;
+            img.className = 'overlay-unit overlay-image';
+
+            img.style.left = (data.x || 0) + 'px';
+            img.style.top = (data.y || 0) + 'px';
+
+            document.getElementById('overlay').appendChild(img);
+
+            requestAnimationFrame(() => img.style.opacity = 1);
+
+            setTimeout(() => {
+                img.style.opacity = 0;
+                img.addEventListener('transitionend', () => img.remove(), { once: true });
+            }, data.duration || (3000 - 500));
+        }
     </script>
 </body>
 
