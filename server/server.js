@@ -186,8 +186,6 @@ app.post('/api/guessEmote', (req, res) => {
     if (!id) return res.status(400).json({ error: 'Missing image link' });
     const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);
     const base64 = imageBuffer.toString('base64');
-    //const x = randomInt(0, 1920 - dimensions.width);
-    //const y = randomInt(0, 1080 - dimensions.height);
     broadcastOverlayEvent({ type, data: `data:image/webp;base64,${base64}`, x, y, duration, id });
     res.json({ success: true });
 });
