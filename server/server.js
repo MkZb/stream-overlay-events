@@ -182,11 +182,11 @@ function broadcastOverlayEvent(payload) {
 }
 
 app.post('/api/guessEmote', (req, res) => {
-    const { type, id, x, y, duration } = req.body;
+    const { type, id, x, y, duration, revealTime} = req.body;
     if (!id) return res.status(400).json({ error: 'Missing image link' });
     const imageBuffer = fs.readFileSync(`./server/cache/emotes/${id}.webp`);
     const base64 = imageBuffer.toString('base64');
-    broadcastOverlayEvent({ type, data: `data:image/webp;base64,${base64}`, x, y, duration, id });
+    broadcastOverlayEvent({ type, data: `data:image/webp;base64,${base64}`, x, y, duration, id, revealTime});
     res.json({ success: true });
 });
 

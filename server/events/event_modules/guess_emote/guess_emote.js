@@ -8,6 +8,7 @@ export default {
     isEnabled: true,
     cooldown: 10 * 60 * 1000,
     duration: 1 * 60 * 1000,
+    revealTime: 15 * 1000,
     x: 0,
     y: 0,
 
@@ -16,8 +17,9 @@ export default {
     reloadConfig() {
         const cfg = config.getConfig();
         this.isEnabled = cfg.isEnabled;
-        this.cooldown = cfg.cooldown;
+        this.cooldown = cfg.cooldown > cfg.duration ? cfg.cooldown : cfg.duration;
         this.duration = cfg.duration;
+        this.revealTime = cfg.revealTime;
         this.x = cfg.x;
         this.y = cfg.y;
     },
@@ -54,6 +56,7 @@ export default {
                 type: 'guess_emote',
                 id: game.id,
                 duration: this.duration,
+                revealTime: this.revealTime,
                 x: this.x,
                 y: this.y
             })

@@ -1,8 +1,9 @@
 {
   "isEnabled": true,
   "description": "Guess displayed emote",
-  "cooldown": 20000,
-  "duration": 15000,
+  "cooldown": 30000,
+  "duration": 30000,
+  "revealTime": 10000,
   "x": 300,
   "y": 300
 }
