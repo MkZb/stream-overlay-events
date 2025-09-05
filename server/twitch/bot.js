@@ -3,7 +3,8 @@ import 'dotenv/config'
 
 import * as oauth from './oauth.js';
 import { parseMessage } from './messageParser.js';
-import { handleMessage } from '../events/events.js';
+import { handleMessageEvents } from '../events/events.js';
+import { processCommand } from './commands/commands.js';
 
 export const API_URL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
@@ -57,7 +58,7 @@ function handleWebSocketMessage(data) {
         case 'notification':
             switch (data.metadata.subscription_type) {
                 case 'channel.chat.message':
-                    handleChatMessageEvent(data.payload.event)
+                    handleChatMessage(data.payload.event)
                     break;
             }
             break;
@@ -65,12 +66,40 @@ function handleWebSocketMessage(data) {
 }
 
 
-function handleChatMessageEvent(data) {
+function handleChatMessage(data) {
     const messageData = parseMessage(data);
-    handleMessage({
+    handleMessageEvents({
         messageData: messageData,
         apiLink: API_URL
-    })
+    });
+
+    if (messageData.type === 'command') {
+        processCommand({ ...messageData.command })
+    }
+}
+
+export async function sendMessage(text) {
+    let response = await fetch('https://api.twitch.tv/helix/chat/messages', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Client-Id': CLIENT_ID,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            broadcaster_id: CHANNEL_ID,
+            sender_id: BOT_ID,
+            message: text
+        })
+    });
+
+    if (response.status != 200) {
+        let data = await response.json();
+        console.error('Failed to send a chat message, API call returned status code ' + response.status);
+        console.error(data);
+    } else {
+        console.log(`Sent a chat message`);
+    }
 }
 
 async function registerEventSubListeners() {

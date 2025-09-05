@@ -1,4 +1,5 @@
 import { getEmoteImage, getRandomEmote } from '../../../7tv/7tv.js';
+import { addGuessEmoteWin } from '../../../db/mongoDB.js';
 import { broadcastOverlayEvent } from '../../../websocket.js';
 import * as config from './config.js'
 
@@ -80,10 +81,18 @@ export default {
                 type: 'guess_update',
                 id: this.activeGame.id,
                 answer: this.activeGame.answer,
-                user: messageData.username,
+                user: messageData.userName,
             });
 
-            console.log(`[${this.name}] ${messageData.username} guessed correctly!`);
+            addGuessEmoteWin({
+                userId: messageData.userId,
+                userName: messageData.userName
+            }).catch(err => {
+                console.error(`[${this.name}] Error while updating database`);
+                console.error(err);
+            });
+
+            console.log(`[${this.name}] ${messageData.userName} guessed correctly!`);
             this.activeGame = null;
         }
     }

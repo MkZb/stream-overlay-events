@@ -1,23 +1,32 @@
 # DESCRIPTION IS OUT OF DATE
 
-This project evolved into entire container for a modules one of which was an initial idea of the project. Down bellow is description of a single module, this README will be updated later. Also UI is COMOLETELY broken, you should change config.json files by hand now, it will take a long time to fix it.
+This project evolved into entire container for a modules one of which was an initial idea of the project. Down bellow is description of a single module, this README will be updated later. Also UI is COMPLETELY broken, you should change config.json files by hand now, it will take a long time to fix it.
 
 ## Twitch Sound Streak Bot
 
 This project is a Twitch-connected app/bot that listens to chat messages and triggers specific sounds when keywords streaks are detected. It also provides a configuration UI for managing keywords, sounds, thresholds, and playback volume.
 
+## Requirements
+- Node.js and npm ([instruction for installation](https://nodejs.org/en/download/))
+- MongoDB database ([instruction for installation](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/))
+
 ## Installation
 
 1. Create .env file in the root of the app and add next variables:
 
-- TWITCH_REFRESH_TOKEN= - your refresh token (this one could expire, I will try to work on automatic reneval)
-- TWITCH_CLIENT_ID= - your client id
-- TWITCH_CLIENT_SECRET= - your client secret
-- TWITCH_BOT_USER_ID= - an id (not a login) of a monitoring (bot) account
-- TWITCH_CHANNEL_ID= - an id (not a login) of a channel chat to monitor
+```
+TWITCH_REFRESH_TOKEN= - your refresh token (this one could expire, I will try to work on automatic reneval)
+TWITCH_CLIENT_ID= - your client id
+TWITCH_CLIENT_SECRET= - your client secret
+TWITCH_BOT_USER_ID= - an id (not a login) of a monitoring (bot) account
+TWITCH_CHANNEL_ID= - an id (not a login) of a channel chat to monitor
 
-- (optional) SERVER_PORT= - an express app port
-- (optional) WEBSOCKET_PORT= - a websocket port
+MONGODB_URL= - a url to connect to your database
+MONGODB_DATABASE= - name of your database
+
+(optional) SERVER_PORT= - an express app port
+(optional) WEBSOCKET_PORT= - a websocket port
+```
 
 2. Install required packages and build the ui
 ```bash
