@@ -30,13 +30,13 @@ MONGODB_DATABASE= - name of your database
 (optional) WEBSOCKET_PORT= - a websocket port
 ```
 
-Client ID and secret obtained with (those instructions)[https://dev.twitch.tv/docs/authentication/register-app/].
-You can get refresh token when creating a user access token with (Twitch CLI)[https://dev.twitch.tv/docs/cli/].
-First you need to (configure it)[https://dev.twitch.tv/docs/cli/configure-command/] with your client ID and secret.
-Make sure you create a token with a correct scope: `twitch token -u -s user:bot user:read:chat user:write:chat`.
-You only need a refresh token from this command because token itself expires in 1 hour anyway, the app handles refreshing and getting the token itself.
-To obtain twitch channel ID you can use a tool like (this)[https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/].
-MongoDB URL doesn't have to be a local one, it could be a remote one as well, just make sure you have a database there and specify it in the file.
+- Client ID and secret obtained with [those instructions](https://dev.twitch.tv/docs/authentication/register-app/).
+- You can get refresh token when creating a user access token with [Twitch CLI](https://dev.twitch.tv/docs/cli/).
+- First you need to [configure it](https://dev.twitch.tv/docs/cli/configure-command/) with your client ID and secret.
+- Make sure you create a token with a correct scope: `twitch token -u -s user:bot user:read:chat user:write:chat`.
+- You only need a refresh token from this command because token itself expires in 1 hour anyway, the app handles refreshing and getting the token itself.
+- To obtain twitch channel ID you can use a tool like [this](https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/).
+- MongoDB URL doesn't have to be a local one, it could be a remote one as well, just make sure you have a database there and specify it in the file.
 
 2. Install required packages and build the ui
 ```bash
