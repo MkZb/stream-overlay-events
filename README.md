@@ -9,6 +9,7 @@ This project is a Twitch-connected app/bot that listens to chat messages and tri
 ## Requirements
 - Node.js and npm ([instruction for installation](https://nodejs.org/en/download/))
 - MongoDB database ([instruction for installation](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/))
+- An SSL certificate
 
 ## Installation
 

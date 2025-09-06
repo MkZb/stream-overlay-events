@@ -1,131 +1,107 @@
 import 'dotenv/config'
 import express from 'express';
-import cors from 'cors';
-import { getConfig, updateConfig } from './events/event_modules/voiced_streaks/config.js';
-import multer from 'multer';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import crypto from 'crypto';
+import https from 'https'
+import fs from 'fs'
 
 const SERVER_PORT = process.env.SERVER_PORT || 3001;
+const EVENTSUB_PORT = 443;
+const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+const eventSubApp = express();
+const serverApp = express();
 
-app.use(express.static(path.join(__dirname, '../ui/build')));
+serverApp.use(express.static(path.join(__dirname, '../ui/build')));
+//serverApp.use(cors());
+serverApp.use(express.json());
 
-const modulesDir = path.join(__dirname, 'events', 'event_modules');
+// Notification request headers
+const TWITCH_MESSAGE_ID = 'Twitch-Eventsub-Message-Id'.toLowerCase();
+const TWITCH_MESSAGE_TIMESTAMP = 'Twitch-Eventsub-Message-Timestamp'.toLowerCase();
+const TWITCH_MESSAGE_SIGNATURE = 'Twitch-Eventsub-Message-Signature'.toLowerCase();
+const MESSAGE_TYPE = 'Twitch-Eventsub-Message-Type'.toLowerCase();
+const SUBSCRIPTION_TYPE = 'Twitch-Eventsub-Subscription-Type'.toLowerCase();
 
-// List all modules
-app.get('/api/modules', (req, res) => {
-    const modules = fs.readdirSync(modulesDir, { withFileTypes: true })
-        .filter(d => d.isDirectory())
-        .map(d => d.name);
-    res.json({ modules });
+// Notification message types
+const MESSAGE_TYPE_VERIFICATION = 'webhook_callback_verification';
+const MESSAGE_TYPE_NOTIFICATION = 'notification';
+const MESSAGE_TYPE_REVOCATION = 'revocation';
+
+// Prepend this string to the HMAC that's created from the message
+const HMAC_PREFIX = 'sha256=';
+
+const sslOptions = {
+    key: fs.readFileSync(path.join(__dirname, 'certs', 'server.key')),
+    cert: fs.readFileSync(path.join(__dirname, 'certs', 'server.crt')),
+}
+
+eventSubApp.post('/eventsub',
+    express.raw({ type: 'application/json' }),
+    (req, res) => {
+        let message = getHmacMessage(req);
+        let hmac = HMAC_PREFIX + getHmac(CLIENT_SECRET, message);
+
+        if (true === verifyMessage(hmac, req.headers[TWITCH_MESSAGE_SIGNATURE])) {
+            console.log("signatures match");
+
+            let notification = JSON.parse(req.body);
+
+            if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
+                // TODO: Do something with the event's data.
+
+                console.log(`Event type: ${notification.subscription.type}`);
+                console.log(JSON.stringify(notification.event, null, 4));
+
+                res.sendStatus(204);
+            }
+            else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
+                res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
+            }
+            else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
+                res.sendStatus(204);
+
+                console.log(`${notification.subscription.type} notifications revoked!`);
+                console.log(`reason: ${notification.subscription.status}`);
+                console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
+            }
+            else {
+                res.sendStatus(204);
+                console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
+            }
+        }
+        else {
+            console.log('403');    // Signatures didn't match.
+            res.sendStatus(403);
+        }
+    })
+
+// Build the message used to get the HMAC.
+function getHmacMessage(request) {
+    return (request.headers[TWITCH_MESSAGE_ID] +
+        request.headers[TWITCH_MESSAGE_TIMESTAMP] +
+        request.body);
+}
+
+// Get the HMAC.
+function getHmac(secret, message) {
+    return crypto.createHmac('sha256', secret)
+        .update(message)
+        .digest('hex');
+}
+
+// Verify whether our hash matches the hash that Twitch passed in the header.
+function verifyMessage(hmac, verifySignature) {
+    return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(verifySignature));
+}
+
+https.createServer(sslOptions, eventSubApp).listen(EVENTSUB_PORT, () => {
+    console.log(`Event server listening on port ${EVENTSUB_PORT}`);
 });
 
-// Get config for a module
-app.get('/api/modules/:module/config', async (req, res) => {
-    try {
-        const mod = req.params.module;
-        const configPath = path.join(modulesDir, mod, 'config.js');
-        if (!fs.existsSync(configPath)) return res.status(404).json({ error: 'Module not found' });
-        const { getConfig } = await import(`./events/event_modules/${mod}/config.js`);
-        res.json(getConfig());
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// Update config for a module
-app.put('/api/modules/:module/config', express.json(), async (req, res) => {
-    try {
-        const mod = req.params.module;
-        const configPath = path.join(modulesDir, mod, 'config.js');
-        if (!fs.existsSync(configPath)) return res.status(404).json({ error: 'Module not found' });
-        const { updateConfig, getConfig } = await import(`./events/event_modules/${mod}/config.js`);
-        updateConfig(req.body);
-        res.json(getConfig());
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// --- Settings API ---
-const soundsDir = path.join(__dirname, '../ui/build/sounds');
-if (!fs.existsSync(soundsDir)) fs.mkdirSync(soundsDir, { recursive: true });
-const upload = multer({ dest: soundsDir });
-
-let config = getConfig();
-
-// Get current config
-app.get('/api/config', (req, res) => {
-    res.json(getConfig());
-});
-
-// Add a new keyword (with file upload)
-app.post('/api/keywords', upload.single('sound'), (req, res) => {
-    const { word, threshold, volume } = req.body;
-    config = getConfig();
-    if (!word) return res.status(400).json({ error: 'Missing keyword' });
-    let soundFile = req.file ? req.file.filename : null;
-    if (req.file) {
-        // Move file to correct name
-        const name = path.basename(req.file.originalname);
-        fs.renameSync(req.file.path, path.join(soundsDir, name));
-        soundFile = name;
-    }
-    config.keywords.push({
-        word,
-        sound: soundFile || '',
-        volume: volume ? Number(volume) : 1,
-        threshold: threshold ? Number(threshold) : config.globalThreshold || 3
-    });
-    updateConfig({ keywords: config.keywords });
-    res.json({ success: true, keywords: config.keywords });
-});
-
-// Update a keyword's properties
-app.put('/api/keywords/:index', upload.single('sound'), (req, res) => {
-    const { word, threshold, volume } = req.body;
-    config = getConfig();
-    const idx = Number(req.params.index);
-    if (isNaN(idx) || !config.keywords[idx]) return res.status(404).json({ error: 'Keyword not found' });
-    if (word) config.keywords[idx].word = word;
-    if (threshold) config.keywords[idx].threshold = Number(threshold);
-    if (volume) config.keywords[idx].volume = Number(volume);
-    if (req.file) {
-        const name = path.basename(req.file.originalname);
-        fs.renameSync(req.file.path, path.join(soundsDir, name));
-        config.keywords[idx].sound = name;
-    }
-    updateConfig({ keywords: config.keywords });
-    res.json({ success: true, keyword: config.keywords[idx] });
-});
-
-// Remove a keyword
-app.delete('/api/keywords/:index', (req, res) => {
-    config = getConfig();
-    const idx = Number(req.params.index);
-    if (isNaN(idx) || !config.keywords[idx]) return res.status(404).json({ error: 'Keyword not found' });
-    config.keywords.splice(idx, 1);
-    updateConfig({ keywords: config.keywords });
-    res.json({ success: true });
-});
-
-// Update threshold
-app.post('/api/globalThreshold', (req, res) => {
-    const { globalThreshold } = req.body;
-    if (typeof globalThreshold !== 'number' || globalThreshold < 1) return res.status(400).json({ error: 'Invalid threshold' });
-    config.globalThreshold = globalThreshold;
-    updateConfig({ globalThreshold: config.globalThreshold });
-    res.json({ success: true });
-});
-
-app.listen(SERVER_PORT, () => {
-    console.log(`Config API listening on port ${SERVER_PORT}`);
+serverApp.listen(SERVER_PORT, () => {
+    console.log(`Server listening on port ${SERVER_PORT}`);
 });
