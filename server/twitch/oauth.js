@@ -5,10 +5,16 @@ const CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.TWITCH_REFRESH_TOKEN;
 
 
-let token;
+let userToken;
+let appToken = process.env.TWITCH_APP_TOKEN;
+
+if(!appToken) {
+    appToken = await getNewAppAccessToken();
+    console.log(appToken);
+}
 
 export async function getAuth(maxRetries = 2) {
-    let currentToken = await getToken();
+    let currentToken = await getUserAccessToken();
     let response = await fetch('https://id.twitch.tv/oauth2/validate', {
         method: 'GET',
         headers: {
@@ -32,18 +38,22 @@ export async function getAuth(maxRetries = 2) {
 }
 
 async function handleExpiredToken(maxRetries) {
-    await getNewToken();
+    await getNewUserAccessToken();
     return await getAuth(maxRetries);
 }
 
-async function getToken() {
-    if (!token) {
-        await getNewToken();
+async function getUserAccessToken() {
+    if (!userToken) {
+        await getNewUserAccessToken();
     }
-    return token;
+    return userToken;
 }
 
-async function getNewToken() {
+export async function getAppAccessToken() {
+    return appToken;
+}
+
+async function getNewUserAccessToken() {
     let response = await fetch('https://id.twitch.tv/oauth2/token', {
         method: 'POST',
         headers: {
@@ -58,11 +68,34 @@ async function getNewToken() {
     });
 
     if (response.status != 200) {
-        console.error('Failed to create a token /oauth2/token returned status code ' + response.status);
+        console.error('Failed to create a user access token /oauth2/token returned status code ' + response.status);
         console.log(JSON.stringify(response, null, 2));
         process.exit(1);
     } else {
         let data = await response.json();
-        token = data.access_token;
+        userToken = data.access_token;
+    }
+}
+
+async function getNewAppAccessToken() {
+    let response = await fetch('https://id.twitch.tv/oauth2/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'client_credentials',
+        })
+    });
+
+    if (response.status != 200) {
+        console.error('Failed to create an app access token /oauth2/token returned status code ' + response.status);
+        console.log(JSON.stringify(response, null, 2));
+        process.exit(1);
+    } else {
+        let data = await response.json();
+        return data.access_token;
     }
 }

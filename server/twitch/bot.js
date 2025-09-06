@@ -20,11 +20,13 @@ if (!BOT_ID || !CLIENT_ID || !CHANNEL_ID) {
 }
 
 let websocketSessionID;
-let token;
+let userToken;
+let appToken;
 
 (async () => {
     // Verify that the authentication is valid
-    token = await oauth.getAuth();
+    userToken = await oauth.getAuth();
+    appToken = await oauth.getAppAccessToken();
 
     // Start WebSocket client and register handlers
     const websocketClient = startWebSocketClient();
@@ -65,7 +67,6 @@ function handleWebSocketMessage(data) {
     }
 }
 
-
 function handleChatMessage(data) {
     const messageData = parseMessage(data);
     handleMessageEvents({
@@ -82,7 +83,7 @@ export async function sendMessage(text) {
     let response = await fetch('https://api.twitch.tv/helix/chat/messages', {
         method: 'POST',
         headers: {
-            'Authorization': 'Bearer ' + token,
+            'Authorization': 'Bearer ' + appToken,
             'Client-Id': CLIENT_ID,
             'Content-Type': 'application/json'
         },
@@ -106,7 +107,7 @@ async function registerEventSubListeners() {
     let response = await fetch('https://api.twitch.tv/helix/eventsub/subscriptions', {
         method: 'POST',
         headers: {
-            'Authorization': 'Bearer ' + token,
+            'Authorization': 'Bearer ' + userToken,
             'Client-Id': CLIENT_ID,
             'Content-Type': 'application/json'
         },
