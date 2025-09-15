@@ -106,7 +106,7 @@
             if (handlers[data.type]) {
                 handlers[data.type](data);
             } else {
-                console.warn("Unknown event:", data.type);
+                console.warn('Unknown event:', data.type);
             }
         };
 
@@ -153,8 +153,8 @@
             topText.textContent = '';
 
             // Image
-            const imgWrap = document.createElement("div");
-            imgWrap.className = "guess-emote-container";
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'guess-emote-container';
             const img = document.createElement('img');
             img.src = data.data;
             imgWrap.appendChild(img);
@@ -171,10 +171,10 @@
             document.getElementById('overlay').appendChild(unit);
 
             // Reveal animation
-            img.style.clipPath = "inset(0 100% 0 0)";
+            img.style.clipPath = 'inset(0 100% 0 0)';
             img.offsetHeight;
             img.style.transition = `clip-path ${data.revealTime || 10000}ms linear`;
-            img.style.clipPath = "inset(0 0 0 0)";
+            img.style.clipPath = 'inset(0 0 0 0)';
 
             // Auto-remove
             setTimeout(() => {
@@ -192,16 +192,16 @@
             if (!unit) return;
 
             unit.dataset.guessed = 'true';
-            const img = unit.querySelector("img");
+            const img = unit.querySelector('img');
 
             const computed = getComputedStyle(img);
-            img.style.transition = "none";
-            img.style.clipPath = "inset(0 0 0 0)";
+            img.style.transition = 'none';
+            img.style.clipPath = 'inset(0 0 0 0)';
 
-            const topText = unit.querySelector(".guess-emote-top-text");
+            const topText = unit.querySelector('.guess-emote-top-text');
             topText.textContent = `${data.user} 🥳`;
 
-            const bottomText = unit.querySelector(".guess-emote-bottom-text");
+            const bottomText = unit.querySelector('.guess-emote-bottom-text');
             bottomText.textContent = `${data.answer}`;
 
             setTimeout(() => unit.style.opacity = 0, 10000 - 500);

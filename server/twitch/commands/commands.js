@@ -1,4 +1,4 @@
-import { getGuessEmoteLeaderboard } from "./guessEmote.js";
+import { getGuessEmoteLeaderboard } from './guessEmote.js';
 
 const commands = {
     leaderboard: getGuessEmoteLeaderboard,
