@@ -1,4 +1,4 @@
-import { setCooldown, setUserRole } from './commandControls.js';
+import { setCooldown, setUserRole, toggleCommand } from './commandControls.js';
 import { getGuessEmoteLeaderboard } from './guessEmote.js';
 import Roles from '../roles.js';
 import { sendMessage } from '../bot.js';
@@ -12,6 +12,14 @@ const commandConfig = {
         handler: getGuessEmoteLeaderboard
     },
 
+    setrole: {
+        enabled: true,
+        cooldown: 0,
+        lastUsed: 0,
+        access: Roles.ADMIN,
+        handler: setUserRole
+    },
+
     setcooldown: {
         enabled: true,
         cooldown: 0,
@@ -20,12 +28,12 @@ const commandConfig = {
         handler: setCooldown
     },
 
-    setrole: {
+    toggle: {
         enabled: true,
         cooldown: 0,
         lastUsed: 0,
-        access: Roles.ADMIN,
-        handler: setUserRole
+        access: Roles.MODERATOR,
+        handler: toggleCommand
     }
 };
 
@@ -85,4 +93,10 @@ export function isCommand(command) {
 export function updateCooldown({ command, cooldown }) {
     const cmdConfig = getCommand(command);
     cmdConfig.cooldown = cooldown;
+}
+
+export function toggle({ command }) {
+    const cmdConfig = getCommand(command);
+    cmdConfig.enabled = !cmdConfig.enabled;
+    return cmdConfig.enabled;
 }

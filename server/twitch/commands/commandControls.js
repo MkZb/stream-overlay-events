@@ -1,11 +1,10 @@
 import Roles from '../roles.js';
 import { setRole } from '../../db/mongoDB.js';
 import { sendMessage } from '../bot.js';
-import { isCommand, updateCooldown } from './commands.js';
+import { isCommand, toggle, updateCooldown } from './commands.js';
 
 export async function setCooldown(args) {
-    if (args.length < 2) {
-        notify(`Wrong amount of arguments for setcooldown command`);
+    if (!isNumberOfArgumentsExpected(args, 2)) {
         return;
     }
 
@@ -27,8 +26,7 @@ export async function setCooldown(args) {
 }
 
 export async function setUserRole(args) {
-    if (args.length < 2) {
-        notify(`Wrong amount of arguments for setrole command`);
+    if (!isNumberOfArgumentsExpected(args, 2)) {
         return;
     }
 
@@ -53,7 +51,36 @@ export async function setUserRole(args) {
     }
 }
 
+export function toggleCommand(args) {
+    if (!isNumberOfArgumentsExpected(args, 1)) {
+        return;
+    }
+
+    const command = args[0];
+
+    if (!isCommand(command)) {
+        notify(`Unknown command`);
+        return;
+    }
+
+    if (command === 'toggle') {
+        notify(`Can't toggle toggle`);
+        return;
+    }
+
+    const status = toggle({ command });
+    notify(`${command} has been ${status ? 'enabled' : 'disabled'}`);
+}
+
 function notify(message) {
     sendMessage(message);
     console.log(message);
+}
+
+function isNumberOfArgumentsExpected(args, expected = 0) {
+    if (args.length < expected) {
+        notify(`Unexpected amount of arguments, at least ${expected} expected`);
+        return false;
+    }
+    return true;
 }
