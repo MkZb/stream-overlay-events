@@ -67,15 +67,15 @@ function handleWebSocketMessage(data) {
     }
 }
 
-function handleChatMessage(data) {
-    const messageData = parseMessage(data);
+async function handleChatMessage(data) {
+    const messageData = await parseMessage(data);
     handleMessageEvents({
         messageData: messageData,
         apiLink: API_URL
     });
 
     if (messageData.type === 'command') {
-        processCommand({ ...messageData.command })
+        processCommand({ role: messageData.role, ...messageData.command })
     }
 }
 

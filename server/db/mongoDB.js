@@ -17,7 +17,7 @@ try {
 }
 
 export async function addGuessEmoteWin({ userId, userName }) {
-    const collection = db.collection('guessEmoteStats');
+    const collection = db.collection('users');
     collection.updateOne(
         { _id: userId },
         {
@@ -34,9 +34,30 @@ export async function addGuessEmoteWin({ userId, userName }) {
 }
 
 export async function getTopGuessEmotePlayers(amount = 10) {
-    const collection = db.collection('guessEmoteStats');
+    const collection = db.collection('users');
     return collection.find({})
         .sort({ wins: -1 })
         .limit(amount)
         .toArray();
+}
+
+export async function getRole({ userId }) {
+    const collection = db.collection('users');
+    const user = await collection.findOne({ _id: userId });
+    return user?.role ?? null;
+}
+
+export async function setRole({ userName, role }) {
+    const collection = db.collection('users');
+    const result = await collection.updateOne(
+        { userName },
+        {
+            $set: {
+                role
+            }
+        },
+        { upsert: false }
+    )
+
+    return result.modifiedCount;
 }

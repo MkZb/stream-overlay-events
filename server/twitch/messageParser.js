@@ -1,7 +1,9 @@
 import getChannelEmotes from '../7tv/7tv.js'
+import { getRole } from '../db/mongoDB.js';
 import { parseCommand } from './commands/commands.js';
+import Roles from './roles.js';
 
-export function parseMessage(data) {
+export async function parseMessage(data) {
     const messageData = {
         userName: data.chatter_user_name,
         userId: data.chatter_user_id,
@@ -12,6 +14,7 @@ export function parseMessage(data) {
     messageData.emotes = getMessageEmotes(data.message.text);
     messageData.type = data.message.text[0] === '!' ? 'command' : 'message';
     messageData.command = parseCommand(data.message.text);
+    messageData.role = await getRole({ userId: messageData.userId }) ?? Roles.USER;
     return messageData;
 }
 
