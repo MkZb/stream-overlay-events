@@ -7,7 +7,7 @@ export async function getGuessEmoteLeaderboard({ }) {
     let message = '';
 
     topTen.forEach((item, idx) => {
-        message += `${idx + 1}. ${obfuscateName(item.userName)}: ${item.wins} `
+        message += `${idx + 1}. ${obfuscateName(item.userName)} - ${item.wins} `
     });
 
     await sendMessage(message);

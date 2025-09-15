@@ -40,9 +40,8 @@
         }
 
         .guess-emote-top-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: pre;
+            overflow: visible;
             text-align: center;
             width: 100%;
             line-height: 1.2;
@@ -141,6 +140,7 @@
             const unit = document.createElement('div');
             unit.className = 'overlay-unit guess-emote';
             unit.dataset.id = data.id;
+            unit.dataset.guessed = 'false';
 
             unit.style.left = (data.x || 0) + 'px';
             unit.style.top = (data.y || 0) + 'px';
@@ -178,8 +178,10 @@
 
             // Auto-remove
             setTimeout(() => {
-                topText.textContent = 'No one won 😢';
-                bottomText.textContent = data.answer;
+                if (unit.dataset.guessed === 'false') {
+                    topText.textContent = 'No one won 😢';
+                    bottomText.textContent = data.answer;
+                }
             }, data.duration || 10000);
             setTimeout(() => unit.style.opacity = 0, data.duration + 5000 - 500 || 10000);
             setTimeout(() => unit.remove(), data.duration + 5000 || 10000);
@@ -189,6 +191,7 @@
             const unit = document.querySelector(`.guess-emote[data-id="${data.id}"]`);
             if (!unit) return;
 
+            unit.dataset.guessed = 'true';
             const img = unit.querySelector("img");
 
             const computed = getComputedStyle(img);
