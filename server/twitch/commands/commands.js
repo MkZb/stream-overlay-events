@@ -59,6 +59,10 @@ export function parseCommand(message) {
 export async function processCommand({ role, command, args }) {
     const cmd = commandConfig[command];
 
+    if (!cmd) {
+        return console.log(`Command ${command} not found`);
+    }
+    
     if (role > cmd.access) {
         sendMessage(`You don't have access to this command`);
         return console.log(`User access level of ${role} is to low to access command ${command} with minimum level ${cmd.access}.`);
