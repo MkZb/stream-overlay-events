@@ -19,4 +19,4 @@ Enable or disable `[command]`
 
 ### Admin access level
 - `!setrole [username] [role]`\
-Set an access level of `[user]` to `[role]` (number)\
+Set an access level of `[user]` to `[role]` (number)
