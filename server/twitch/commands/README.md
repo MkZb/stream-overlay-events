@@ -7,15 +7,15 @@
 ### User access level
 - `!leaderboard`\
 Aliases: `lb`\
-Display the leaderboard for guess the emote game\
+Display the leaderboard for guess the emote game
 
 ### Moderator access level
 - `!setcooldown [command] [time]`\
 Aliases: `setcd`\
-Set a cooldown of `[time]` seconds for a specific `[command]`\
-\
+Set a cooldown of `[time]` seconds for a specific `[command]`
+
 - `!toggle [command]`\
-Enable or disable `[command]`\
+Enable or disable `[command]`
 
 ### Admin access level
 - `!setrole [username] [role]`\
