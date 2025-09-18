@@ -7,14 +7,17 @@ import { channelsIdList } from '../twitch/channels.js';
 const SEVENTV_API = 'https://7tv.io/v3';
 const GLOBAL_EMOTES_SET_ID = '01HKQT8EWR000ESSWF3625XCS4';
 
+// Directory of cached emotes
 const CACHE_DIR = path.join(process.cwd(), 'server', 'cache', 'emotes');
 
+// Create directory if it doesnt exist
 if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
 }
 
 let channelEmotes = {};
 
+// Parse emotes from all listened channels during runtime
 (async () => {
     for (const channelId of channelsIdList) {
         let globalData = await getGlobalEmotesData();
@@ -25,6 +28,10 @@ let channelEmotes = {};
 
 })();
 
+/**
+ * Returns a json object representing global 7tv emotes data
+ * @returns {object} global 7tv emotes data
+ */
 async function getGlobalEmotesData() {
     let response = await fetch(`${SEVENTV_API}/emote-sets/${GLOBAL_EMOTES_SET_ID}`, {
         method: 'GET'
@@ -38,6 +45,11 @@ async function getGlobalEmotesData() {
     return await response.json();
 }
 
+/**
+ * Returns a json object representing channel 7tv emotes data
+ * @param {string} id an id of a channel to get emotes data from 
+ * @returns {object} channel 7tv emotes data
+ */
 async function getTwitchChannelData(id) {
     let response = await fetch(`${SEVENTV_API}/users/twitch/${id}`, {
         method: 'GET'
@@ -51,6 +63,13 @@ async function getTwitchChannelData(id) {
     return await response.json();
 }
 
+/**
+ * Updates a channel emotes information
+ * @param {string} channelId an id of a channel which information is being updated
+ * @param {object} globalData a 7tv API response json object with global emotes data
+ * @param {object} channelData a 7tv API response json object with channel emotes data
+ * @returns 
+ */
 function parseEmotes(channelId, globalData, channelData) {
     if (!channelData?.emote_set && !globalData?.emotes) {
         return;
@@ -85,6 +104,9 @@ function isWebpAvailable(emote) {
 
 }
 
+/**
+ * Caches all the emotes on disk drive from parsed channels
+ */
 async function cacheEmotes() {
     for (const [channelId, emotesData] of Object.entries(channelEmotes)) {
         for (const [id, emote] of Object.entries(emotesData)) {
@@ -113,13 +135,24 @@ async function cacheEmotes() {
     }
 }
 
+/**
+ * Returns data about all 7tv emotes from a specified channel
+ * @param {string} channelId a channel id to get emotes from 
+ * @returns {object} an object containing data about emotes on the channel
+ */
 export default function getChannelEmotes(channelId) {
     return channelEmotes[channelId];
 }
 
-export function getEmoteImage({ id }) {
+/**
+ * Returns an emote image by specified id
+ * @param {string} id an id of an image to return 
+ * @returns {NonSharedBuffer|null} an image or null
+ */
+export function getEmoteImage(id) {
     if (!id) {
-        return console.warn('To get an emote id should be specified');
+        console.warn('To get an emote id should be specified');
+        return null;
     }
 
     if (id) {
@@ -127,6 +160,11 @@ export function getEmoteImage({ id }) {
     }
 }
 
+/**
+ * Returns a random emote from a specified channel
+ * @param {string} channelId an id of a channel to get random emote from
+ * @returns {{id: string, data:object}|null} an object containing emote id and its data or null
+ */
 export function getRandomEmote(channelId) {
     const entries = Object.entries(channelEmotes[channelId]);
     if (!entries.length) return null;

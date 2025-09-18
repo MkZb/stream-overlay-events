@@ -47,7 +47,7 @@ export default {
 
         this.activeGame = game;
 
-        const imageBuffer = getEmoteImage({ id });
+        const imageBuffer = getEmoteImage(id);
         if (!imageBuffer) {
             console.error(`[${this.name}]Couldn't find an image with id ${id}`);
             return;

@@ -28,7 +28,7 @@ export default {
         const emote = messageData.emotes[randomInt(0, messageData.emotes.length)];
         const emoteId = emote.key;
 
-        const imageBuffer = getEmoteImage({ id: emoteId });
+        const imageBuffer = getEmoteImage(emoteId);
 
         if (!imageBuffer) {
             console.error(`[${this.name}]Couldn't find an image with id ${emoteId}`);
