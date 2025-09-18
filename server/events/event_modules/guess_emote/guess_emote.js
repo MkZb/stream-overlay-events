@@ -25,14 +25,12 @@ export default {
         this.y = cfg.y;
     },
 
-    shouldTrigger(context) {
+    shouldTrigger({}) {
         return this.isEnabled;
     },
 
-    trigger(context) {
-        const gameId = Date.now().toString();
-
-        const { id, data } = getRandomEmote(context.messageData.broadcasterId);
+    trigger({messageData}) {
+        const { id, data } = getRandomEmote(messageData.broadcasterId);
 
         if (!id) {
             console.warn('No channel emotes found');
