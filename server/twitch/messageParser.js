@@ -15,7 +15,7 @@ export async function parseMessage(data) {
     messageData.emotes = getMessageEmotes(messageData.broadcasterId, data.message.text);
     messageData.type = data.message.text[0] === '!' ? 'command' : 'message';
     messageData.command = parseCommand(data.message.text);
-    messageData.role = await getRole(messageData.userId) ?? Roles.USER;
+    messageData.role = getRole(messageData.userId) ?? Roles.USER;
     return messageData;
 }
 
