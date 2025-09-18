@@ -28,7 +28,7 @@ for (const dir of fs.readdirSync(eventsDir, { withFileTypes: true })) {
 
 /**
  * Runs all events on each new chat message.
- * @param {Object} context
+ * @param {object} context a message context
  */
 export function handleMessageEvents(context) {
     for (const event of events) {
