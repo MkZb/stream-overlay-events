@@ -28,8 +28,7 @@ ui/build/
 *.swo
 
 # Uploaded/temporary sounds
-ui/public/sounds/*
-!ui/public/sounds/.gitkeep
+server/public/sounds/*
 
 # Coverage
 coverage/

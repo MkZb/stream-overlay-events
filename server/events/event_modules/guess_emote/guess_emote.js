@@ -32,7 +32,7 @@ export default {
     trigger(context) {
         const gameId = Date.now().toString();
 
-        const { id, data } = getRandomEmote();
+        const { id, data } = getRandomEmote(context.messageData.broadcasterId);
 
         if (!id) {
             console.warn('No channel emotes found');

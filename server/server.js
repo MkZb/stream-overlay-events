@@ -13,8 +13,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, '../ui/build')));
+app.use(express.static(path.join(__dirname, './public')));
 
 app.listen(SERVER_PORT, () => {
-    console.log(`Config API listening on port ${SERVER_PORT}`);
+    console.log(`Overlay server listening on port ${SERVER_PORT}`);
 });

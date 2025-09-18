@@ -65,8 +65,18 @@ export function parseCommand(message) {
     return { command, args };
 }
 
-export async function processCommand({ role, command, args }) {
+export async function processCommand({ role, command, args, broadcasterId }) {
     const cmd = commandConfig[command];
+
+    const notify = async function (chatMessage, consoleMessage = chatMessage) {
+        if (chatMessage) {
+            await sendMessage(chatMessage, broadcasterId);
+        }
+
+        if (consoleMessage) {
+            console.log(consoleMessage);
+        }
+    }
 
     if (!cmd) {
         return notify('', `Command ${command} not found`);
@@ -91,7 +101,7 @@ export async function processCommand({ role, command, args }) {
     cmd.lastUsed = now;
 
     try {
-        await cmd.handler(args);
+        await cmd.handler(args, notify);
     } catch (err) {
         console.error(`Error in command ${command}:`, err);
     }
@@ -119,15 +129,5 @@ export function toggle({ command }) {
 export function isNumberOfArgumentsExpected(args, expected = 0) {
     if (args.length < expected) {
         return notify(`Unexpected amount of arguments, at least ${expected} expected`);
-    }
-}
-
-export async function notify(chatMessage, consoleMessage = chatMessage) {
-    if (chatMessage) {
-        await sendMessage(chatMessage);
-    }
-
-    if (consoleMessage) {
-        console.log(consoleMessage);
     }
 }

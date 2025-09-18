@@ -7,19 +7,20 @@ export async function parseMessage(data) {
     const messageData = {
         userName: data.chatter_user_name,
         userId: data.chatter_user_id,
+        broadcasterId: data.broadcaster_user_id,
         message: data.message.text,
         timestamp: Date.now()
     }
 
-    messageData.emotes = getMessageEmotes(data.message.text);
+    messageData.emotes = getMessageEmotes(messageData.broadcasterId, data.message.text);
     messageData.type = data.message.text[0] === '!' ? 'command' : 'message';
     messageData.command = parseCommand(data.message.text);
     messageData.role = await getRole({ userId: messageData.userId }) ?? Roles.USER;
     return messageData;
 }
 
-function getMessageEmotes(text) {
-    const channelEmotes = getChannelEmotes();
+function getMessageEmotes(channelId, text) {
+    const channelEmotes = getChannelEmotes(channelId);
     const words = text.split(/\s+/);
 
     return words.flatMap(word => {

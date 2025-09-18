@@ -1,8 +1,7 @@
 import { getTopGuessEmotePlayers } from '../../db/mongoDB.js';
 import { obfuscateName } from '../../utils/utils.js';
-import { notify } from './commandsController.js';
 
-export async function getGuessEmoteLeaderboard({ }) {
+export async function getGuessEmoteLeaderboard(args, notify) {
     const topTen = await getTopGuessEmotePlayers();
     let message = '';
 

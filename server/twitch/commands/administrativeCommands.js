@@ -1,8 +1,8 @@
 import Roles from '../roles.js';
 import { setRole } from '../../db/mongoDB.js';
-import { isCommand, isNumberOfArgumentsExpected, notify, toggle, updateCooldown } from './commandsController.js';
+import { isCommand, isNumberOfArgumentsExpected, toggle, updateCooldown } from './commandsController.js';
 
-export async function setCooldown(args) {
+export async function setCooldown(args, notify) {
     if (!isNumberOfArgumentsExpected(args, 2)) {
         return;
     }
@@ -22,7 +22,7 @@ export async function setCooldown(args) {
     notify(`Updated ${command} cooldown to ${cooldown} seconds`);
 }
 
-export async function setUserRole(args) {
+export async function setUserRole(args, notify) {
     if (!isNumberOfArgumentsExpected(args, 2)) {
         return;
     }
@@ -45,7 +45,7 @@ export async function setUserRole(args) {
     }
 }
 
-export function toggleCommand(args) {
+export function toggleCommand(args, notify) {
     if (!isNumberOfArgumentsExpected(args, 1)) {
         return;
     }
