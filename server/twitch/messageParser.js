@@ -1,6 +1,6 @@
 import getChannelEmotes from '../7tv/7tv.js'
 import { getRole } from '../db/mongoDB.js';
-import { parseCommand } from './commands/commands.js';
+import { parseCommand } from './commands/commandsController.js';
 import Roles from './roles.js';
 
 export async function parseMessage(data) {

@@ -1,7 +1,8 @@
-import { setCooldown, setUserRole, toggleCommand } from './commandControls.js';
+import { setCooldown, setUserRole, toggleCommand } from './administrativeCommands.js';
 import { getGuessEmoteLeaderboard } from './guessEmote.js';
 import Roles from '../roles.js';
 import { sendMessage } from '../bot.js';
+import { distract } from './variousCommands.js';
 
 const commandConfig = {
     leaderboard: {
@@ -34,6 +35,14 @@ const commandConfig = {
         lastUsed: 0,
         access: Roles.MODERATOR,
         handler: toggleCommand
+    },
+
+    distract: {
+        enabled: true,
+        cooldown: 0,
+        lastUsed: 0,
+        access: Roles.USER,
+        handler: distract
     }
 };
 
@@ -60,21 +69,23 @@ export async function processCommand({ role, command, args }) {
     const cmd = commandConfig[command];
 
     if (!cmd) {
-        return console.log(`Command ${command} not found`);
+        return notify('', `Command ${command} not found`);
     }
-    
+
     if (role > cmd.access) {
-        sendMessage(`You don't have access to this command`);
-        return console.log(`User access level of ${role} is to low to access command ${command} with minimum level ${cmd.access}.`);
+        return notify(
+            `You don't have access to this command`,
+            `User access level of ${role} is to low to access command ${command} with minimum level ${cmd.access}.`
+        )
     }
 
     if (!cmd.enabled) {
-        return console.log(`Command ${command} is disabled.`);
+        return notify('', `Command ${command} is disabled.`);
     }
 
     const now = Date.now();
     if (now - cmd.lastUsed < cmd.cooldown) {
-        return console.log(`Command ${command} is on cooldown.`);
+        return notify('', `Command ${command} is on cooldown. ${(cmd.cooldown - (now - cmd.lastUsed)) / 1000} seconds left`);
     }
 
     cmd.lastUsed = now;
@@ -103,4 +114,20 @@ export function toggle({ command }) {
     const cmdConfig = getCommand(command);
     cmdConfig.enabled = !cmdConfig.enabled;
     return cmdConfig.enabled;
+}
+
+export function isNumberOfArgumentsExpected(args, expected = 0) {
+    if (args.length < expected) {
+        return notify(`Unexpected amount of arguments, at least ${expected} expected`);
+    }
+}
+
+export async function notify(chatMessage, consoleMessage = chatMessage) {
+    if (chatMessage) {
+        await sendMessage(chatMessage);
+    }
+
+    if (consoleMessage) {
+        console.log(consoleMessage);
+    }
 }

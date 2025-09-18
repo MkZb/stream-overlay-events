@@ -1,6 +1,6 @@
 import { getTopGuessEmotePlayers } from '../../db/mongoDB.js';
-import { sendMessage } from '../bot.js';
 import { obfuscateName } from '../../utils/utils.js';
+import { notify } from './commandsController.js';
 
 export async function getGuessEmoteLeaderboard({ }) {
     const topTen = await getTopGuessEmotePlayers();
@@ -10,5 +10,5 @@ export async function getGuessEmoteLeaderboard({ }) {
         message += `${idx + 1}. ${obfuscateName(item.userName)} - ${item.wins} `
     });
 
-    await sendMessage(message);
+    notify(message, '');
 }

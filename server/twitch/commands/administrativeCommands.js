@@ -1,7 +1,6 @@
 import Roles from '../roles.js';
 import { setRole } from '../../db/mongoDB.js';
-import { sendMessage } from '../bot.js';
-import { isCommand, toggle, updateCooldown } from './commands.js';
+import { isCommand, isNumberOfArgumentsExpected, notify, toggle, updateCooldown } from './commandsController.js';
 
 export async function setCooldown(args) {
     if (!isNumberOfArgumentsExpected(args, 2)) {
@@ -12,13 +11,11 @@ export async function setCooldown(args) {
     const cooldown = Number(args[1]);
 
     if (!isCommand(command)) {
-        notify(`Unknown command`);
-        return;
+        return notify(`Unknown command`);
     }
 
     if (!Number.isInteger(cooldown) || cooldown < 0) {
-        notify(`Cooldown should be an integer`);
-        return;
+        return notify(`Cooldown should be an integer`);
     }
 
     updateCooldown({ command, cooldown: cooldown * 1000 });
@@ -34,20 +31,17 @@ export async function setUserRole(args) {
     const role = Number(args[1]);
 
     if (!Number.isInteger(role) || role < 0) {
-        notify(`Role should be an integer`);
-        return;
+        return notify(`Role should be an integer`);
     }
 
     if (!Object.values(Roles).includes(role)) {
-        notify(`Unknown role ${role}`);
-        return;
+        return notify(`Unknown role ${role}`);
     }
 
     const result = await setRole({ userName, role });
     if (result) {
         const roleName = Object.keys(Roles).find(key => Roles[key] === role);
-        notify(`Updated ${userName} role to ${roleName}`);
-        return;
+        return notify(`Updated ${userName} role to ${roleName}`);
     }
 }
 
@@ -59,28 +53,13 @@ export function toggleCommand(args) {
     const command = args[0];
 
     if (!isCommand(command)) {
-        notify(`Unknown command`);
-        return;
+        return notify(`Unknown command`);
     }
 
     if (command === 'toggle') {
-        notify(`Can't toggle toggle`);
-        return;
+        return notify(`Can't toggle toggle`);
     }
 
     const status = toggle({ command });
     notify(`${command} has been ${status ? 'enabled' : 'disabled'}`);
-}
-
-function notify(message) {
-    sendMessage(message);
-    console.log(message);
-}
-
-function isNumberOfArgumentsExpected(args, expected = 0) {
-    if (args.length < expected) {
-        notify(`Unexpected amount of arguments, at least ${expected} expected`);
-        return false;
-    }
-    return true;
 }

@@ -4,7 +4,7 @@ import 'dotenv/config'
 import * as oauth from './oauth.js';
 import { parseMessage } from './messageParser.js';
 import { handleMessageEvents } from '../events/events.js';
-import { processCommand } from './commands/commands.js';
+import { processCommand } from './commands/commandsController.js';
 
 export const API_URL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
