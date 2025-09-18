@@ -18,7 +18,7 @@ export async function setCooldown(args, notify) {
         return notify(`Cooldown should be an integer`);
     }
 
-    updateCooldown({ command, cooldown: cooldown * 1000 });
+    updateCooldown(command, cooldown * 1000);
     notify(`Updated ${command} cooldown to ${cooldown} seconds`);
 }
 
@@ -60,6 +60,6 @@ export function toggleCommand(args, notify) {
         return notify(`Can't toggle toggle`);
     }
 
-    const status = toggle({ command });
+    const status = toggle(command);
     notify(`${command} has been ${status ? 'enabled' : 'disabled'}`);
 }

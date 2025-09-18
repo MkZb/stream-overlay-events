@@ -76,14 +76,19 @@ async function handleChatMessage(data) {
     });
 
     if (messageData.type === 'command') {
-        processCommand({
-            broadcasterId: messageData.broadcasterId,
-            role: messageData.role,
-            ...messageData.command
-        })
+        processCommand(
+            messageData.role,
+            messageData.broadcasterId,
+            messageData.command
+        );
     }
 }
 
+/**
+ * Sends a message in a specified twitch chat
+ * @param {string} text a message to send
+ * @param {string} broadcasterId twitch id of a channel where to send a message
+ */
 export async function sendMessage(text, broadcasterId) {
     let response = await fetch('https://api.twitch.tv/helix/chat/messages', {
         method: 'POST',

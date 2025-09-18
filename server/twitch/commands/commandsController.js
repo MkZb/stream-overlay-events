@@ -4,6 +4,7 @@ import Roles from '../roles.js';
 import { sendMessage } from '../bot.js';
 import { distract } from './variousCommands.js';
 
+// Default commands configuration
 const commandConfig = {
     leaderboard: {
         enabled: true,
@@ -46,11 +47,17 @@ const commandConfig = {
     }
 };
 
+// Commands aliases
 const aliases = {
     lb: 'leaderboard',
     setcd: 'setcooldown'
 };
 
+/**
+ * Parse a command from the supplied message
+ * @param {string} message a message to parse
+ * @returns {{command:string, args:string[]}} command - a parsed command, args - a list of its arguments 
+ */
 export function parseCommand(message) {
     if (!message.startsWith('!')) return null;
 
@@ -65,7 +72,16 @@ export function parseCommand(message) {
     return { command, args };
 }
 
-export async function processCommand({ role, command, args, broadcasterId }) {
+/**
+ * Processes and potentialy executes a command
+ * @param {number} role user role 
+ * @param {string} broadcasterId id of chat where message was sent
+ * @param {object} Command a command data
+ * @param {string} command a command being executed
+ * @param {string[]} args a command arguments
+ * @returns {void}
+ */
+export async function processCommand(role, broadcasterId, { command, args }) {
     const cmd = commandConfig[command];
 
     const notify = async function (chatMessage, consoleMessage = chatMessage) {
@@ -107,25 +123,51 @@ export async function processCommand({ role, command, args, broadcasterId }) {
     }
 }
 
+/**
+ * Returns a command data
+ * @param {string} command a command to get 
+ * @returns {object} a command data
+ */
 function getCommand(command) {
     return aliases[command] ? commandConfig[aliases[command]] : commandConfig[command];
 }
 
+/**
+ * Checks if specified string is a command
+ * @param {string} command a string to check
+ * @returns {boolean} whether command exists or not
+ */
 export function isCommand(command) {
     return aliases[command] || commandConfig[command];
 }
 
-export function updateCooldown({ command, cooldown }) {
+/**
+ * Sets a cooldown for a command
+ * @param {string} command a command to set cooldown for
+ * @param {number} cooldown a cooldown in miliseconds
+ */
+export function updateCooldown(command, cooldown) {
     const cmdConfig = getCommand(command);
     cmdConfig.cooldown = cooldown;
 }
 
-export function toggle({ command }) {
+/**
+ * Enables or disables specified command
+ * @param {string} command a command to toggle 
+ * @returns {boolean} true if command enabled, false otherwise
+ */
+export function toggle(command) {
     const cmdConfig = getCommand(command);
     cmdConfig.enabled = !cmdConfig.enabled;
     return cmdConfig.enabled;
 }
 
+/**
+ * Checks if amount of passed arguments is expected (or less which in some cases is aplicable)
+ * @param {string[]} args the passed arguments
+ * @param {number} expected an expected amount of arguments
+ * @returns {boolean} true if number of arguments is expected, false otherwise
+ */
 export function isNumberOfArgumentsExpected(args, expected = 0) {
     if (args.length < expected) {
         notify(`Unexpected amount of arguments, at least ${expected} expected`);

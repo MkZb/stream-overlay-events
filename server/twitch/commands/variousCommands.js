@@ -1,5 +1,8 @@
-import { sendMessage } from '../bot.js';
-
+/**
+ * It does what it says.
+ * @param {string[]} args 
+ * @callback notify a callback to send chat and console messages
+ */
 export async function distract(args, notify) {
-    sendMessage('@ranctious Tomfoolery');
+    notify('@ranctious Tomfoolery', '');
 }
