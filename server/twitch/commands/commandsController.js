@@ -128,6 +128,9 @@ export function toggle({ command }) {
 
 export function isNumberOfArgumentsExpected(args, expected = 0) {
     if (args.length < expected) {
-        return notify(`Unexpected amount of arguments, at least ${expected} expected`);
+        notify(`Unexpected amount of arguments, at least ${expected} expected`);
+        return false;
     }
+
+    return true;
 }

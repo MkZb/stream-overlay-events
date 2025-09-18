@@ -38,7 +38,7 @@ export async function setUserRole(args, notify) {
         return notify(`Unknown role ${role}`);
     }
 
-    const result = await setRole({ userName, role });
+    const result = setRole(userName, role);
     if (result) {
         const roleName = Object.keys(Roles).find(key => Roles[key] === role);
         return notify(`Updated ${userName} role to ${roleName}`);

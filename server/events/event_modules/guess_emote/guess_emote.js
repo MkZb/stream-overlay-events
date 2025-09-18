@@ -84,10 +84,10 @@ export default {
                 user: messageData.userName,
             });
 
-            addGuessEmoteWin({
-                userId: messageData.userId,
-                userName: messageData.userName
-            }).catch(err => {
+            addGuessEmoteWin(
+                messageData.userId,
+                messageData.userName
+            ).catch(err => {
                 console.error(`[${this.name}] Error while updating database`);
                 console.error(err);
             });
