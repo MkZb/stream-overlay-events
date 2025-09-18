@@ -89,6 +89,7 @@
 <body>
     <div id="overlay"></div>
 
+    <script src="/scripts/reconnecting-websocket-iife.js"></script>
     <script>
         const handlers = {
             play_sound: handlePlaySound,
@@ -97,7 +98,7 @@
             guess_update: handleGuessUpdate
         };
 
-        const ws = new WebSocket('ws://localhost:3002');
+        const ws = new ReconnectingWebSocket('ws://localhost:3002');
         const status = document.getElementById('sound-status');
 
         ws.onmessage = (event) => {
