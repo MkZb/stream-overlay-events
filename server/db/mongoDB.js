@@ -4,6 +4,11 @@ import { MongoClient } from 'mongodb'
 const MONGODB_URL = process.env.MONGODB_URL;
 const MONGODB_DATABASE = process.env.MONGODB_DATABASE;
 
+if(!MONGODB_URL || !MONGODB_DATABASE) {
+    console.error('Please specify database url and name in .env');
+    process.exit(1);
+}
+
 const client = new MongoClient(MONGODB_URL);
 let db;
 
